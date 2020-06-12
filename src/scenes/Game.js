@@ -21,6 +21,10 @@ export default class Game extends Phaser.Scene{
         super('game')
     }
 
+    init(){
+        this.jewelsCollected = 0
+    }
+
     preload(){
         this.load.image('test-bg', 'assets/sprites/Background/bg_brick.png')
         
@@ -29,8 +33,13 @@ export default class Game extends Phaser.Scene{
         
         this.load.image('bunny-stand', 'assets/sprites/Player/bunny_stand.png')
         
+        this.load.image('bunny-jump', 'assets/sprites/Player/bunny_jump.png')
+
         // load jewel image
         this.load.image('jewel', 'assets/sprites/Items/collectible_diamond.png')
+
+        this.load.audio('jump', 'assets/sfx/jump-4.wav')
+        this.load.audio('collect-jewel', 'assets/sfx/collect-1.wav')
 
         // Input
         this.cursors = this.input.keyboard.createCursorKeys()
@@ -121,6 +130,18 @@ export default class Game extends Phaser.Scene{
         if (touchingDown){
             // make bunny jump straight up
             this.player.setVelocityY(-300)
+
+            // switch to jump texture
+            this.player.setTexture('bunny-jump')
+
+            // play jump sound
+            this.sound.play('jump')
+        }
+
+        const vy = this.player.body.velocity.y
+        if (vy > 0 && this.player.texture.key !== 'bunny-stand'){
+            // switch back to stand when falling
+            this.player.setTexture('bunny-stand')
         }
 
         // left and right input logic
@@ -197,6 +218,9 @@ export default class Game extends Phaser.Scene{
         // create new text value and set it
         const value = `Jewels: ${this.jewelsCollected}`
         this.jewelsCollectedText.text = value
+
+        // play jewel collect sfx
+        this.sound.play('collect-jewel')
     }
 
     findBottomMostPlatform(){

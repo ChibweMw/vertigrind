@@ -5,12 +5,17 @@ import Jewel from '../game/Jewel.js'
 
 export default class Game extends Phaser.Scene{
 
+    jewelsCollected = 0
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms    
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     cursors
+    /** @type {Phaser.Physics.Arcade.Group} */
+    jewels
+    /** @type {Phaser.GameObjects.Text} */
+    jewelsCollectedText
 
     constructor(){
         super('game')
@@ -52,10 +57,6 @@ export default class Game extends Phaser.Scene{
             /** @type {Phaser.Physics.Arcade.StaticBody} */
             const body = platform.body
             body.updateFromGameObject()
-
-            // create a jewel
-            const jewel = new Jewel(this, 340, 320, 'jewel')
-            this.add.existing(jewel)
         }
 
         // create a bunny sprite
@@ -74,6 +75,28 @@ export default class Game extends Phaser.Scene{
         // set horizontal dead zones to 1.5 
         // for screenwrapping to work
         this.cameras.main.setDeadzone(this.scale.width * 1.5)
+        
+        // create a jewel
+
+        this.jewels = this.physics.add.group({
+            classType: Jewel
+        })
+
+        this.jewels.get(340, 320, 'jewel')
+
+        this.physics.add.collider(this.platforms, this.jewels)
+
+        this.physics.add.overlap(
+            this.player,
+            this.jewels,
+            this.handleCollectJewel,
+            undefined,
+            this
+        )
+
+        const style = { color: '#fff', fontSize: 24}
+        this.jewelsCollectedText = this.add.text(240, 10, 'Jewels: 0', style).setScrollFactor(0).setOrigin(0.5, 0)
+        
     }
 
     update(t, dt){
@@ -86,6 +109,9 @@ export default class Game extends Phaser.Scene{
             if (platform.y >= scrollY + 700){
                 platform.y = scrollY - Phaser.Math.Between(50, 100)
                 platform.body.updateFromGameObject()
+
+                // place jewel above reused platform
+                this.addJewelAbove(platform)
             }
         })
 
@@ -110,6 +136,11 @@ export default class Game extends Phaser.Scene{
         }
 
         this.horizontalWrap(this.player)
+
+        const bottomPlatform = this.findBottomMostPlatform()
+        if (this.player.y > bottomPlatform.y + 200){
+            this.scene.start('game-over')
+        }
     }
 
     /**
@@ -124,5 +155,65 @@ export default class Game extends Phaser.Scene{
         else if (sprite.x > gameWidth + halfWidth){
             sprite.x = -halfWidth
         }
+    }
+
+    /**
+     * 
+     * @param {Phaser.GameObjects.Sprite} sprite 
+     */
+    addJewelAbove(sprite){
+        const y = sprite.y - sprite.displayHeight
+
+        /** @type {Phaser.Physics.Arcade.Sprite} */
+        const jewel = this.jewels.get(sprite.x, y, 'jewel')
+
+        // this.add.existing(jewel)
+        jewel.setActive(true)
+        jewel.setVisible(true)
+
+        // update the physics body
+        jewel.body.setSize(jewel.width, jewel.height)
+
+        // make sure body is enabled in the physics world
+        this.physics.world.enable(jewel)
+
+        return jewel
+    }
+
+    /**
+     * @param {Phaser.Physics.Arcade.Sprite} player
+     * @param {Jewel} jewel
+     */
+    handleCollectJewel(player, jewel){
+        // hide from display
+        this.jewels.killAndHide(jewel)
+
+        // disable from physics world
+        this.physics.world.disableBody(jewel.body)
+
+        this.jewelsCollected++
+        console.log(`Jewels Collected: ${this.jewelsCollected}`)
+
+        // create new text value and set it
+        const value = `Jewels: ${this.jewelsCollected}`
+        this.jewelsCollectedText.text = value
+    }
+
+    findBottomMostPlatform(){
+        const platforms = this.platforms.getChildren()
+        let bottomPlatform = platforms[0]
+
+        for (let i = 1; i < platforms.length; ++i){
+            const platform = platforms[i]
+
+            // discard any platforms that are above the current
+            if (platform.y < bottomPlatform.y){
+                continue
+            }
+
+            bottomPlatform = platform
+        }
+
+        return bottomPlatform
     }
 }

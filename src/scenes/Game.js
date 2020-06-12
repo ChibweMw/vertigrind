@@ -1,5 +1,8 @@
 import Phaser from  '../lib/phaser.js'
 
+// import Jewel class here
+import Jewel from '../game/Jewel.js'
+
 export default class Game extends Phaser.Scene{
 
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
@@ -21,6 +24,9 @@ export default class Game extends Phaser.Scene{
         
         this.load.image('bunny-stand', 'assets/sprites/Player/bunny_stand.png')
         
+        // load jewel image
+        this.load.image('jewel', 'assets/sprites/Items/collectible_diamond.png')
+
         // Input
         this.cursors = this.input.keyboard.createCursorKeys()
     }
@@ -28,7 +34,7 @@ export default class Game extends Phaser.Scene{
     create(){
         let bg_brick = this.add.image(340, 320, 'test-bg')
         bg_brick.scale = 3.0
-        bg_brick.setScrollFactor(1, 0)
+        bg_brick.setScrollFactor(1, 0.5)
         
         // start adding colliders to platforms
         this.platforms = this.physics.add.staticGroup()
@@ -46,6 +52,10 @@ export default class Game extends Phaser.Scene{
             /** @type {Phaser.Physics.Arcade.StaticBody} */
             const body = platform.body
             body.updateFromGameObject()
+
+            // create a jewel
+            const jewel = new Jewel(this, 340, 320, 'jewel')
+            this.add.existing(jewel)
         }
 
         // create a bunny sprite
@@ -60,6 +70,10 @@ export default class Game extends Phaser.Scene{
         this.player.body.checkCollision.right = false
 
         this.cameras.main.startFollow(this.player)
+
+        // set horizontal dead zones to 1.5 
+        // for screenwrapping to work
+        this.cameras.main.setDeadzone(this.scale.width * 1.5)
     }
 
     update(t, dt){
@@ -93,6 +107,22 @@ export default class Game extends Phaser.Scene{
         else {
             // stop left right movement
             this.player.setVelocityX(0)
+        }
+
+        this.horizontalWrap(this.player)
+    }
+
+    /**
+     * @param {Phaser.GameObjects.Sprite} sprite
+     */
+    horizontalWrap(sprite){
+        const halfWidth = sprite.displayWidth * 0.5
+        const gameWidth = this.scale.width
+        if (sprite.x < -halfWidth){
+            sprite.x = gameWidth + halfWidth
+        }
+        else if (sprite.x > gameWidth + halfWidth){
+            sprite.x = -halfWidth
         }
     }
 }

@@ -1,14 +1,21 @@
-/** @type {import("../typings/phaser")} */
+import Phaser from './lib/phaser.js'
 
-import {LoadScene} from "./scenes/LoadScene";
-import {MenuScene} from "./scenes/MenuScene";
-import {GameScene} from "./scenes/GameScene";
-let game = new Phaser.Game({
-    width: 800,
-    height: 600,
-    scene:[
-        LoadScene, MenuScene, GameScene
-    ] 
-});
+import Game from './scenes/Game.js'
 
-console.log("Vertigrind Development: ONLINE");
+export default new Phaser.Game({
+    type: Phaser.AUTO,
+    width: 480,
+    height: 640,
+    scene: Game,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: {
+                y: 200
+            },
+            debug: true
+        }
+    }
+})
+
+console.log('VERTIGRIND DEVELOPMENT STATUS: ONLINE');

@@ -59,10 +59,38 @@ export default class Game extends Phaser.Scene{
         this.platforms = this.physics.add.staticGroup()
 
         // create 5 platforms for the group
-        for (let i = 0; i < 5; ++i){
+        // for (let i = 0; i < 5; ++i){
 
-            const x = Phaser.Math.Between(80, 400)
-            const y = 150 * i
+        //     const x = Phaser.Math.Between(80, 400)
+        //     const y = 150 * i
+
+        //     /** @type {Phaser.Physics.Arcade.Sprite} */
+        //     const platform = this.platforms.create(x, y, 'test-platform')
+        //     platform.scale = 3.0
+            
+        //     /** @type {Phaser.Physics.Arcade.StaticBody} */
+        //     const body = platform.body
+        //     body.updateFromGameObject()
+        // }
+
+        for (let i = 0; i < 11; ++i){
+
+            const x = 480
+            const y = 48 * i
+
+            /** @type {Phaser.Physics.Arcade.Sprite} */
+            const platform = this.platforms.create(x, y, 'test-platform')
+            platform.scale = 3.0
+            
+            /** @type {Phaser.Physics.Arcade.StaticBody} */
+            const body = platform.body
+            body.updateFromGameObject()
+        }
+
+        for (let i = 0; i < 11; ++i){
+
+            const x = 0
+            const y = 48 * i
 
             /** @type {Phaser.Physics.Arcade.Sprite} */
             const platform = this.platforms.create(x, y, 'test-platform')
@@ -74,17 +102,19 @@ export default class Game extends Phaser.Scene{
         }
 
         // create a bunny sprite
-        this.player = this.physics.add.sprite(240, 320, 'bunny-stand').setScale(3.0)
+        this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
+
+        this.player.body.gravity.x = -2000
         
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
 
         // specify directional collision checks
         // this.player.body.checkCollision.up    = false
-        this.player.body.checkCollision.left  = false
-        this.player.body.checkCollision.right = false
+        // this.player.body.checkCollision.left  = false
+        // this.player.body.checkCollision.right = false
 
-        this.cameras.main.startFollow(this.player)
+        // this.cameras.main.startFollow(this.player)
 
         // set horizontal dead zones to 1.5 
         // for screenwrapping to work
@@ -141,34 +171,48 @@ export default class Game extends Phaser.Scene{
             }
         })
 
-        const vy = this.player.body.velocity.y
+        const vy = this.player.body.velocity.x
         
         // Use 'SPACE' key to jump
         const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
         const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
 
-        if (isJustUpJump && vy < 0 ){
-            this.player.setVelocityY(0)
+        if (isJustUpJump && vy !== 0){
+            this.player.setVelocityX(0)
         }
 
         // Check Arcade Physics if player colliding below
-        const touchingDown = this.player.body.touching.down
-        if (touchingDown){
+        const touchingLeft = this.player.body.touching.left
+        const touchingRight = this.player.body.touching.right
+        if (touchingLeft || touchingRight){
             this.jumpCount = 0
         }
 
         let candoubleJump = this.jumpCount < 2
         
-        if (isJustDownJump && (touchingDown || candoubleJump)){
+        if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
             // make bunny jump straight up
 
             if (this.jumpCount > 0){
                 // double jump force
-                this.player.setVelocityY(-800)
                 // flip gravity
-                // this.player.body.gravity.y = -4000
+                if (this.player.body.gravity.x >= 0){
+                    this.player.body.gravity.x = -2000
+                    this.player.setVelocityX(-800)
+                    this.player.setFlipX(true)
+                } else {
+                    this.player.body.gravity.x = 2000
+                    this.player.setVelocityX(800)
+                    this.player.setFlipX(false)
+                }
             } else {
-                this.player.setVelocityY(-700)
+                if (this.player.body.gravity.x >= 0){
+                    this.player.setVelocityX(-800)
+                } else {
+                    this.player.setVelocityX(800)
+                    console.log('GRAVITY FLIPPING')
+                }
+                
             }
 
             // switch to jump texture
@@ -179,26 +223,12 @@ export default class Game extends Phaser.Scene{
             
             this.jumpCount++
             
-            console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
+            // console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
         }
 
-        if (!isJustDownJump && vy > 0 && this.player.texture.key !== 'bunny-stand'){
+        if (!isJustDownJump && (vy < 0 && this.player.body.gravity.x < 0 || vy > 0 && this.player.body.gravity.x > 0 ) && this.player.texture.key !== 'bunny-stand'){
             // switch back to stand when falling
             this.player.setTexture('bunny-stand')
-        }
-
-        // left and right input logic
-        if (this.cursors.left.isDown){
-            this.player.setVelocityX(-200)
-            this.player.setFlipX(true)
-        }
-        else if (this.cursors.right.isDown){
-            this.player.setVelocityX(200)
-            this.player.setFlipX(false)
-        }
-        else {
-            // stop left right movement
-            this.player.setVelocityX(0)
         }
 
         this.horizontalWrap(this.player)

@@ -6,6 +6,7 @@ import Jewel from '../game/Jewel.js'
 export default class Game extends Phaser.Scene{
 
     jewelsCollected = 0
+    jumpCount = 0
     /** @type {Phaser.Physics.Arcade.StaticGroup} */
     platforms    
     /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -23,6 +24,7 @@ export default class Game extends Phaser.Scene{
 
     init(){
         this.jewelsCollected = 0
+        this.jumpCount = 0
     }
 
     preload(){
@@ -75,7 +77,7 @@ export default class Game extends Phaser.Scene{
         this.physics.add.collider(this.platforms, this.player)
 
         // specify directional collision checks
-        this.player.body.checkCollision.up    = false
+        // this.player.body.checkCollision.up    = false
         this.player.body.checkCollision.left  = false
         this.player.body.checkCollision.right = false
 
@@ -91,10 +93,9 @@ export default class Game extends Phaser.Scene{
             classType: Jewel
         })
 
-        this.jewels.get(340, 320, 'jewel')
-
+        // Item collide with platform
         this.physics.add.collider(this.platforms, this.jewels)
-
+        // set player item overlap interaction
         this.physics.add.overlap(
             this.player,
             this.jewels,
@@ -124,32 +125,53 @@ export default class Game extends Phaser.Scene{
             }
         })
 
+        const vy = this.player.body.velocity.y
+
         // Check Arcade Physics if player colliding below
         const touchingDown = this.player.body.touching.down
-
         if (touchingDown){
+            this.jumpCount = 0
+        }
+
+        // Use 'SPACE' key to jump
+        const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
+        const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
+
+        let candoubleJump = this.jumpCount < 2
+
+        if (isJustUpJump && vy < 0 ){
+            this.player.setVelocityY(0)
+        }
+
+        if (isJustDownJump && (touchingDown || candoubleJump)){
             // make bunny jump straight up
-            this.player.setVelocityY(-300)
+            this.player.setVelocityY(-700)
 
             // switch to jump texture
             this.player.setTexture('bunny-jump')
 
             // play jump sound
             this.sound.play('jump')
+            
+            this.jumpCount++
+            
+            console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
+
         }
 
-        const vy = this.player.body.velocity.y
         if (vy > 0 && this.player.texture.key !== 'bunny-stand'){
             // switch back to stand when falling
             this.player.setTexture('bunny-stand')
         }
 
         // left and right input logic
-        if (this.cursors.left.isDown && !touchingDown){
+        if (this.cursors.left.isDown){
             this.player.setVelocityX(-200)
+            this.player.setFlipX(true)
         }
-        else if (this.cursors.right.isDown && !touchingDown){
+        else if (this.cursors.right.isDown){
             this.player.setVelocityX(200)
+            this.player.setFlipX(false)
         }
         else {
             // stop left right movement
@@ -194,6 +216,8 @@ export default class Game extends Phaser.Scene{
 
         // update the physics body
         jewel.body.setSize(jewel.width, jewel.height)
+
+        jewel.body.setAllowGravity(false)
 
         // make sure body is enabled in the physics world
         this.physics.world.enable(jewel)

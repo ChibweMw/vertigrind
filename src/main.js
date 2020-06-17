@@ -14,11 +14,12 @@ export default new Phaser.Game({
         default: 'arcade',
         arcade: {
             gravity: {
-                y: 200
+                y: 2000
             },
             debug: true
-        }
-    }
+        },
+    },
+    backgroundColor: 'rgba(68, 136, 170, 0.5)'
 })
 
 console.log('VERTIGRIND DEVELOPMENT STATUS: ONLINE');

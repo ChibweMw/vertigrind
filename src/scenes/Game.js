@@ -115,7 +115,14 @@ export default class Game extends Phaser.Scene{
             this.scene.start('game')
         })
 
-        this.sound.play('main-theme')
+        // PLAY MAIN THEME MUSIC
+
+        const mainTheme = this.sound.add('main-theme', {
+            volume: 0.7,
+            loop: true
+        })
+
+        mainTheme.play()
     }
 
     update(t, dt){

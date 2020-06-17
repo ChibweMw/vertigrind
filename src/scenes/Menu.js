@@ -5,6 +5,10 @@ export default class Menu extends Phaser.Scene{
         super('menu')
     }
 
+    init(){
+        this.sound.stopAll()
+    }
+
     preload(){
 
     }

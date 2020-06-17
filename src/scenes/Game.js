@@ -25,6 +25,7 @@ export default class Game extends Phaser.Scene{
     init(){
         this.jewelsCollected = 0
         this.jumpCount = 0
+        this.sound.stopAll()
     }
 
     preload(){
@@ -42,6 +43,8 @@ export default class Game extends Phaser.Scene{
 
         this.load.audio('jump', 'assets/sfx/jump-4.wav')
         this.load.audio('collect-jewel', 'assets/sfx/collect-1.wav')
+
+        this.load.audio('main-theme', 'assets/music/Pixel-War-1.wav')
 
         // Input
         this.cursors = this.input.keyboard.createCursorKeys()
@@ -111,7 +114,8 @@ export default class Game extends Phaser.Scene{
         this.input.keyboard.once('keydown_R', () => {
             this.scene.start('game')
         })
-        
+
+        this.sound.play('main-theme')
     }
 
     update(t, dt){
@@ -147,12 +151,15 @@ export default class Game extends Phaser.Scene{
         }
 
         let candoubleJump = this.jumpCount < 2
-
+        
         if (isJustDownJump && (touchingDown || candoubleJump)){
             // make bunny jump straight up
 
             if (this.jumpCount > 0){
+                // double jump force
                 this.player.setVelocityY(-800)
+                // flip gravity
+                // this.player.body.gravity.y = -4000
             } else {
                 this.player.setVelocityY(-700)
             }

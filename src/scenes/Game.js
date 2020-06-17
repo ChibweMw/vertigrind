@@ -150,7 +150,12 @@ export default class Game extends Phaser.Scene{
 
         if (isJustDownJump && (touchingDown || candoubleJump)){
             // make bunny jump straight up
-            this.player.setVelocityY(-700)
+
+            if (this.jumpCount > 0){
+                this.player.setVelocityY(-800)
+            } else {
+                this.player.setVelocityY(-700)
+            }
 
             // switch to jump texture
             this.player.setTexture('bunny-jump')

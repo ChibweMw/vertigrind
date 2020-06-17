@@ -107,6 +107,11 @@ export default class Game extends Phaser.Scene{
         const style = { color: '#fff', fontSize: 24}
         this.jewelsCollectedText = this.add.text(240, 10, 'Jewels: 0', style).setScrollFactor(0).setOrigin(0.5, 0)
         
+        // restart scene
+        this.input.keyboard.once('keydown_R', () => {
+            this.scene.start('game')
+        })
+        
     }
 
     update(t, dt){
@@ -126,6 +131,14 @@ export default class Game extends Phaser.Scene{
         })
 
         const vy = this.player.body.velocity.y
+        
+        // Use 'SPACE' key to jump
+        const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
+        const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
+
+        if (isJustUpJump && vy < 0 ){
+            this.player.setVelocityY(0)
+        }
 
         // Check Arcade Physics if player colliding below
         const touchingDown = this.player.body.touching.down
@@ -133,15 +146,7 @@ export default class Game extends Phaser.Scene{
             this.jumpCount = 0
         }
 
-        // Use 'SPACE' key to jump
-        const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
-        const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
-
         let candoubleJump = this.jumpCount < 2
-
-        if (isJustUpJump && vy < 0 ){
-            this.player.setVelocityY(0)
-        }
 
         if (isJustDownJump && (touchingDown || candoubleJump)){
             // make bunny jump straight up
@@ -156,10 +161,9 @@ export default class Game extends Phaser.Scene{
             this.jumpCount++
             
             console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
-
         }
 
-        if (vy > 0 && this.player.texture.key !== 'bunny-stand'){
+        if (!isJustDownJump && vy > 0 && this.player.texture.key !== 'bunny-stand'){
             // switch back to stand when falling
             this.player.setTexture('bunny-stand')
         }

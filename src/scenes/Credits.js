@@ -10,7 +10,7 @@ export default class Credits extends Phaser.Scene{
     }
 
     preload(){
-
+        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
     }
 
     create(){
@@ -19,7 +19,7 @@ export default class Credits extends Phaser.Scene{
         const height = this.scale.height
         console.log('Credits Scene')
         // const style = { color: '#fff', fontSize: 24}
-        this.add.text(width * 0.5, height * 0.25, 'Credits', { color: '#fff', fontSize: 24}).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25, 'babyblocks', 'Credits', 32).setOrigin(0.5)
 
         this.input.keyboard.once('keydown_ENTER', () => {
             this.scene.start('menu')

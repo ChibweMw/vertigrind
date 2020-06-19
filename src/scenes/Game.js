@@ -7,7 +7,7 @@ export default class Game extends Phaser.Scene{
 
     jewelsCollected = 0
     jumpCount = 0
-    /** @type {Phaser.Physics.Arcade.StaticGroup} */
+    /** @type {Phaser.Physics.Arcade.Group} */
     platforms    
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
@@ -46,6 +46,9 @@ export default class Game extends Phaser.Scene{
 
         this.load.audio('main-theme', 'assets/music/Pixel-War-1.wav')
 
+        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+
+
         // Input
         this.cursors = this.input.keyboard.createCursorKeys()
     }
@@ -56,7 +59,12 @@ export default class Game extends Phaser.Scene{
         bg_brick.setScrollFactor(1, 0.5)
         
         // start adding colliders to platforms
-        this.platforms = this.physics.add.staticGroup()
+        this.platforms = this.physics.add.group({
+            immovable: true,
+            allowGravity: false,
+            velocityY: -140,
+            maxSize: 11
+        })
 
         // create 5 platforms for the group
         // for (let i = 0; i < 5; ++i){
@@ -73,33 +81,29 @@ export default class Game extends Phaser.Scene{
         //     body.updateFromGameObject()
         // }
 
-        for (let i = 0; i < 11; ++i){
+        // for (let i = 0; i < this.platforms.maxSize; ++i){
+        //     const width = this.scale.width
+        //     const height = this.scale.height
+        //     const x = width
+        //     const y = 48 * i
 
-            const x = 480
-            const y = 48 * i
+        //     /** @type {Phaser.Physics.Arcade.Sprite} */
+        //     const platform = this.platforms.create(x, y, 'test-platform')
+        //     platform.scale = 3.0
+        // }
 
-            /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = this.platforms.create(x, y, 'test-platform')
-            platform.scale = 3.0
-            
-            /** @type {Phaser.Physics.Arcade.StaticBody} */
-            const body = platform.body
-            body.updateFromGameObject()
-        }
+        // for (let i = 0; i <  this.platforms.maxSize; ++i){
 
-        for (let i = 0; i < 11; ++i){
+        //     const x = 0
+        //     const y = 48 * i
 
-            const x = 0
-            const y = 48 * i
+        //     /** @type {Phaser.Physics.Arcade.Sprite} */
+        //     const platform = this.platforms.create(x, y, 'test-platform')
+        //     platform.scale = 3.0
+        // } 
+        
 
-            /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = this.platforms.create(x, y, 'test-platform')
-            platform.scale = 3.0
-            
-            /** @type {Phaser.Physics.Arcade.StaticBody} */
-            const body = platform.body
-            body.updateFromGameObject()
-        }
+        this.spawnPlatform()
 
         // create a bunny sprite
         this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
@@ -138,7 +142,7 @@ export default class Game extends Phaser.Scene{
         )
 
         const style = { color: '#fff', fontSize: 24}
-        this.jewelsCollectedText = this.add.text(240, 10, 'Jewels: 0', style).setScrollFactor(0).setOrigin(0.5, 0)
+        this.jewelsCollectedText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels: 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
         
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
@@ -161,13 +165,14 @@ export default class Game extends Phaser.Scene{
             /** @type {Phaser.Physics.Arcade.Sprite} */
             const platform = child
 
-            const scrollY = this.cameras.main.scrollY
-            if (platform.y >= scrollY + 700){
-                platform.y = scrollY - Phaser.Math.Between(50, 100)
-                platform.body.updateFromGameObject()
+            const scrollY = this.scale.height
+            if (platform.y <= -platform.height){
+                platform.y = scrollY + platform.height
+                console.log(`platform past top`)
+                // platform.body.updateFromGameObject()
 
                 // place jewel above reused platform
-                this.addJewelAbove(platform)
+                // this.addJewelAbove(platform)
             }
         })
 
@@ -177,7 +182,9 @@ export default class Game extends Phaser.Scene{
         const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
         const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
 
-        if (isJustUpJump && vy !== 0){
+        let candoubleJump = this.jumpCount < 2
+
+        if (isJustUpJump && vy !== 0 && candoubleJump){
             this.player.setVelocityX(0)
         }
 
@@ -187,8 +194,6 @@ export default class Game extends Phaser.Scene{
         if (touchingLeft || touchingRight){
             this.jumpCount = 0
         }
-
-        let candoubleJump = this.jumpCount < 2
         
         if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
             // make bunny jump straight up
@@ -199,18 +204,18 @@ export default class Game extends Phaser.Scene{
                 if (this.player.body.gravity.x >= 0){
                     this.player.body.gravity.x = -2000
                     this.player.setVelocityX(-800)
-                    this.player.setFlipX(true)
+                    this.player.setFlipX(false)
                 } else {
                     this.player.body.gravity.x = 2000
                     this.player.setVelocityX(800)
-                    this.player.setFlipX(false)
+                    this.player.setFlipX(true)
                 }
             } else {
                 if (this.player.body.gravity.x >= 0){
                     this.player.setVelocityX(-800)
+                    // console.log('GRAVITY FLIPPED')
                 } else {
                     this.player.setVelocityX(800)
-                    console.log('GRAVITY FLIPPING')
                 }
                 
             }
@@ -231,27 +236,36 @@ export default class Game extends Phaser.Scene{
             this.player.setTexture('bunny-stand')
         }
 
-        this.horizontalWrap(this.player)
+        // this.horizontalWrap(this.player)
 
-        const bottomPlatform = this.findBottomMostPlatform()
-        if (this.player.y > bottomPlatform.y + 200){
-            this.scene.start('game-over')
+        // const bottomPlatform = this.findBottomMostPlatform()
+        
+        // if (this.player.y > bottomPlatform.y + 200){
+        //     this.handlePlayerDeath()
+        // }
+
+        this.wordlBoundKill(this.player)
+
+        if (this.player.x > this.scale.width || this.player.x < -this.player.displayWidth){
+            this.handlePlayerDeath()
         }
     }
 
-    /**
-     * @param {Phaser.GameObjects.Sprite} sprite
-     */
-    horizontalWrap(sprite){
-        const halfWidth = sprite.displayWidth * 0.5
-        const gameWidth = this.scale.width
-        if (sprite.x < -halfWidth){
-            sprite.x = gameWidth + halfWidth
-        }
-        else if (sprite.x > gameWidth + halfWidth){
-            sprite.x = -halfWidth
-        }
-    }
+    // /**
+    //  * @param {Phaser.GameObjects.Sprite} sprite
+    //  */
+    // horizontalWrap(sprite){
+    //     const halfWidth = sprite.displayWidth * 0.5
+    //     const gameWidth = this.scale.width
+    //     if (sprite.x < -halfWidth){
+    //         sprite.x = gameWidth + halfWidth
+    //     }
+    //     else if (sprite.x > gameWidth + halfWidth){
+    //         sprite.x = -halfWidth
+    //     }
+    // }
+
+    
 
     /**
      * 
@@ -316,5 +330,36 @@ export default class Game extends Phaser.Scene{
         }
 
         return bottomPlatform
+    }
+
+    handlePlayerDeath(){
+        this.scene.start('game-over')
+    }
+
+    /**
+     * @param {Phaser.GameObjects.Sprite} sprite
+     */
+    wordlBoundKill(sprite){
+        const halfWidth = sprite.displayWidth * 0.5
+        const gameWidth = this.scale.width
+        if (sprite.x < -halfWidth){
+            this.handlePlayerDeath()
+        }
+        else if (sprite.x > gameWidth + halfWidth){
+            this.handlePlayerDeath()
+        }
+    }
+
+    spawnPlatform(){
+        const x = Phaser.Math.RND.pick([0, this.scale.width])
+
+        for (let i = 0; i <  this.platforms.maxSize; ++i){
+            // const x = Phaser.Math.RND.pick([0, this.scale.width])
+            const y = 48 * i
+
+            /** @type {Phaser.Physics.Arcade.Sprite} */
+            const platform = this.platforms.create(x, y, 'test-platform')
+            platform.scale = 3.0
+        }   
     }
 }

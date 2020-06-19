@@ -5,13 +5,18 @@ export default class GameOver extends Phaser.Scene{
         super('game-over')
     }
 
+    preload(){
+        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+
+    }
+
     create(){
         // use ScaleManager to get with and height of game
         const width = this.scale.width
         const height = this.scale.height
         console.log('Game Over')
         // const style = { color: '#fff', fontSize: 24}
-        this.add.text(width * 0.5, height * 0.5, 'Game Over', { color: '#fff', fontSize: 24}).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', 'Game Over', 44).setOrigin(0.5)
         
         this.input.keyboard.once('keydown_R', () => {
             this.scene.start('menu')

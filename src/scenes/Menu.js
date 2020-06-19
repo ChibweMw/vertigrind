@@ -20,6 +20,7 @@ export default class Menu extends Phaser.Scene{
 
     preload(){
         this.cursors = this.input.keyboard.createCursorKeys()
+        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
     }
 
     create(){
@@ -28,9 +29,11 @@ export default class Menu extends Phaser.Scene{
         const height = this.scale.height
         console.log('Main Menu')
         const style = { color: '#fff', fontSize: 24}
-        this.add.text(width * 0.5, height * 0.1, 'Main Menu', style).setOrigin(0.5)
+        // this.add.text(width * 0.5, height * 0.1, 'Main Menu', style).setOrigin(0.5)
         
-        this.menuText = this.add.text(width * 0.5, height * 0.5, `${this.menuItems[this.menuItemPos]}`, style).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'Main Menu', 32).setOrigin(0.5)
+
+        this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', `${this.menuItems[this.menuItemPos]}`, 24).setOrigin(0.5)
 
         this.input.keyboard.once('keydown_ENTER', () => {
             this.scene.start(`${this.menuItems[this.menuItemPos]}`)

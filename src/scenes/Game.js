@@ -18,6 +18,7 @@ export default class Game extends Phaser.Scene{
     /** @type {Phaser.GameObjects.Text} */
     jewelsCollectedText
     timedEvent
+    isGameStart
 
     constructor(){
         super('game')
@@ -27,6 +28,7 @@ export default class Game extends Phaser.Scene{
         this.jewelsCollected = 0
         this.jumpCount = 0
         this.sound.stopAll()
+        this.isGameStart = false
     }
 
     preload(){
@@ -109,7 +111,7 @@ export default class Game extends Phaser.Scene{
         // create a bunny sprite
         this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
 
-        this.player.body.gravity.x = -2000
+        // this.player.body.gravity.x = -2000
         
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
@@ -156,7 +158,7 @@ export default class Game extends Phaser.Scene{
         })
 
         // this.timedEvent = this.time.delayedCall(1500, this.spawnPlatform(4), [], this)
-        this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, callbackScope: this, loop: true })
+        this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this, loop: true })
 
         mainTheme.play()
     }
@@ -202,6 +204,12 @@ export default class Game extends Phaser.Scene{
         const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
 
         let candoubleJump = this.jumpCount < 2
+
+        if (!this.isGameStart && isJustDownJump){
+            this.isGameStart = true
+            // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
+            this.player.body.gravity.x = -2000
+        }
 
         if (isJustUpJump && vy !== 0 && candoubleJump){
             this.player.setVelocityX(0)
@@ -374,7 +382,7 @@ export default class Game extends Phaser.Scene{
         }
     }
 
-    spawnPlatform(platCount = this.platforms.maxSize, spawnLeft = Phaser.Math.RND.pick([true, false]), x = 0){
+    spawnPlatform(platCount = Phaser.Math.RND.between(this.platforms.maxSize / 10, this.platforms.maxSize / 4), spawnLeft = Phaser.Math.RND.pick([true, false]), x = 0){
         // Set horizontal spawn position
         if (spawnLeft){
             x = 0

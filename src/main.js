@@ -15,7 +15,7 @@ export default new Phaser.Game({
         default: 'arcade',
         arcade: {
             
-            debug: false
+            debug: true
         },
     },
     backgroundColor: 'rgba(68, 136, 170, 0.5)'

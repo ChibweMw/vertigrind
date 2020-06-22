@@ -8,7 +8,8 @@ export default class Game extends Phaser.Scene{
     jewelsCollected = 0
     jumpCount = 0
     /** @type {Phaser.Physics.Arcade.Group} */
-    platforms    
+    platforms
+    platformPool
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -66,9 +67,18 @@ export default class Game extends Phaser.Scene{
             classType: Phaser.GameObjects.TileSprite,   
             immovable: true,
             allowGravity: false,
-            // velocityY: -450,
-            maxSize: 30
-        }) 
+            velocityY: -450,
+            maxSize: 30,
+            removeCallback: function (platform) {
+                platform.scene.platformPool.add(platform)
+            }
+        })
+
+        this.platformPool = this.physics.add.group({
+            removeCallback: function (platform) {
+                platform.scene.platforms.add(platform)
+            }
+        })
 
         // this.spawnPlatform()
 
@@ -127,7 +137,7 @@ export default class Game extends Phaser.Scene{
         })
 
         // this.timedEvent = this.time.delayedCall(1500, this.spawnPlatform(4), [], this)
-        this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this, loop: true })
+        this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
 
         mainTheme.play()
     }
@@ -135,36 +145,27 @@ export default class Game extends Phaser.Scene{
     update(t, dt){
 
         // HANDLING PLATFORMS
-        this.platforms.children.iterate(child => {
-            /** @type {Phaser.Physics.Arcade.Sprite} */
-            const platform = child
-
-            const scrollY = this.scale.height
-            if (platform.y <= -platform.displayHeight){
-                // console.log(`platform height on despawn : ${platform.displayHeight}`)
-                // platform.y = scrollY + platform.height
-                this.platforms.killAndHide(platform)
-                this.physics.world.disableBody(platform.body)
-                platform.setActive(false)
-                platform.setVisible(false)
-                if (platform.active) {
-                    console.log(`platform past top`)
-                }
-                // platform.body.updateFromGameObject()
-
-                // place jewel above reused platform
-                // this.addJewelAbove(platform)
+        this.platforms.getChildren().forEach(function(platform){
+            // console.log(`RECYCLE MYPLATS : ${platform}`)
+            let spawnDistance = (16 * 3) * 10
+            if(platform.y < spawnDistance){
+                console.log(`can spawn @ ${platform.y}`)
+                // this.spawnPlatform()
             }
-        })
+            
+            // REMOVE PLATFORM
+            if(platform.y <= -platform.displayHeight){
+                this.platforms.killAndHide(platform)
+                this.platforms.remove(platform)
+            }
+        }, this)
 
-        // if (this.platforms.getTotalFree() >= this.platforms.maxSize / 2 && this.platforms.getTotalUsed() < this.platforms.maxSize / 2){
-        //     // this.spawnPlatform(this.platforms.getTotalFree())
-        //     this.spawnPlatform(Phaser.Math.RND.between(3, 9))
-        //     console.log('SPAWNING PLATS')
-        // }
+        // console.log(`Platfrom Group Platforms in use : ${this.platforms.getTotalUsed()}`)
+        // console.log(`Platfrom Group Free Platforms : ${this.platforms.getTotalFree()}`)        
+        
+        // console.log(`Platfrom Pool Platforms in use : ${this.platformPool.getTotalUsed()}`)
 
-        console.log(`Platforms in use : ${this.platforms.getTotalUsed()}`)
-        console.log(`Free Platforms : ${this.platforms.getTotalFree()}`)
+        // console.log(`Platfrom Pool First Free Platform : ${this.platformPool.getFirst()}`)
 
         const vy = this.player.body.velocity.x
         
@@ -351,66 +352,42 @@ export default class Game extends Phaser.Scene{
         }
     }
 
-    spawnPlatform(platHeight = Phaser.Math.RND.between(1, 5), spawnLeft = Phaser.Math.RND.pick([true, false]), x = 0){
-        // // Set horizontal spawn position
+    // platform spawner. level difficulty
+    spawnPlatform(platHeight = Phaser.Math.RND.between(1, 5), spawnLeft = Phaser.Math.RND.pick([true, false])){
+        let x
+        // Set horizontal spawn position
         if (spawnLeft){
             x = 0
-        // let x = Phaser.Math.RND.pick([0, this.scale.width])
         } else {
             x = this.scale.width - 16 * 3
         }
-        // Set platform count
-         
-        // if (this.platforms.getTotalFree() == this.platforms.maxSize && platHeight > this.platforms.maxSize){
-        //     platHeight = this.platforms.maxSize
-        //     console.log('Reset to maxSize spawn count')
-        // } else if (platHeight > this.platforms.getTotalFree()){
-        //     platHeight = this.platforms.getTotalFree()
-        //     console.log('Spawning from remaining')
-        // }
 
+        const y = this.scale.height
 
-        // for (let i = 0; i < platHeight; ++i){
-            // const y = this.scale.height + (16 * i)
-            const y = this.scale.height
+        // let sizeHeight = 16 * platHeight
+        let sizeHeight = 16
 
-            /** @type {Phaser.Physics.Arcade.Sprite} */
-            // const platform = this.platforms.create(x, y, 'test-platform')
-            // const platform = this.platforms.get(x, y, 'test-platform')
+        let myPlatform
 
-            let sizeHeight = 16 * platHeight
-            const myPlatform = this.add.tileSprite(x, y, 16, sizeHeight, 'test-platform')
-            myPlatform.setOrigin(0, 0)
-            myPlatform.setScale(3.0)
-            this.platforms.add(myPlatform)
-
+        if(this.platformPool.getLength()){
+            console.log('PLATFORM RECYLED')
+            myPlatform = this.platformPool.getFirst()
+            console.log(`MYPLATS : ${myPlatform}`)
+            myPlatform.x = x
+            myPlatform.y = y
             myPlatform.setActive(true)
             myPlatform.setVisible(true)
-            myPlatform.body.setImmovable(true)
-            myPlatform.body.x = x
-            myPlatform.body.y = y
-
-            myPlatform.body.setSize(myPlatform.width, myPlatform.height)
-
-            myPlatform.body.setAllowGravity(false)
-            this.physics.world.enable(myPlatform)
-
-            myPlatform.body.setVelocityY(-410)
-
-            console.log('JUST CREATED')
-            
-            // platform.scale = 3.0
-
-            // platform.setActive(true)
-            // platform.setVisible(true)
-            // platform.setImmovable(true)
-            // platform.body.x = x
-            // platform.body.y = y
-
-            // platform.body.setSize(platform.width, platform.height)
-
-            // platform.body.setAllowGravity(false)
-            // this.physics.world.enable(platform)
-        // }   
+            this.platformPool.remove(myPlatform)
+        }
+        else{
+            console.log('PLATFORM CREATED')
+            myPlatform = this.add.tileSprite(x, y, 16, sizeHeight, 'test-platform')
+            myPlatform.setOrigin(0, 0)
+            this.platforms.add(myPlatform)            
+        }
+        myPlatform.setSize(myPlatform.width, myPlatform.height)
+        myPlatform.setScale(3.0)
+        console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+        
     }
 }

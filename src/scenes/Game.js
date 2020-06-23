@@ -2,6 +2,7 @@ import Phaser from  '../lib/phaser.js'
 
 // import Jewel class here
 import Jewel from '../game/Jewel.js'
+import Spike from '../game/Spike.js'
 
 export default class Game extends Phaser.Scene{
 
@@ -16,6 +17,9 @@ export default class Game extends Phaser.Scene{
     cursors
     /** @type {Phaser.Physics.Arcade.Group} */
     jewels
+    /** @type {Phaser.Physics.Arcade.Group} */
+    spikes
+    spikePool
     /** @type {Phaser.GameObjects.Text} */
     jewelsCollectedText
     timedEvent
@@ -45,6 +49,9 @@ export default class Game extends Phaser.Scene{
         // load jewel image
         this.load.image('jewel', 'assets/sprites/Items/collectible_diamond.png')
 
+        // load obstacle
+        this.load.image('spike', 'assets/sprites/Environment/obstacle_spike.png')
+
         this.load.audio('jump', 'assets/sfx/jump-4.wav')
         this.load.audio('collect-jewel', 'assets/sfx/collect-1.wav')
 
@@ -58,9 +65,14 @@ export default class Game extends Phaser.Scene{
     }
 
     create(){
-        let bg_brick = this.add.image(340, 320, 'test-bg')
-        bg_brick.scale = 3.0
-        bg_brick.setScrollFactor(1, 0.5)
+        let test_spike = this.add.image(340, 320, 'spike')
+        test_spike.scale = 3.0
+        test_spike.setOrigin(0, 0)
+
+        test_spike.setFlipY(true)
+        test_spike.setFlipX(true)
+
+        test_spike.setRotation(Phaser.Math.DegToRad(90))
         
         // start adding colliders to platforms
         this.platforms = this.physics.add.group({
@@ -107,6 +119,8 @@ export default class Game extends Phaser.Scene{
             classType: Jewel
         })
 
+        
+
         // Item collide with platform
         this.physics.add.collider(this.platforms, this.jewels)
         // set player item overlap interaction
@@ -119,10 +133,27 @@ export default class Game extends Phaser.Scene{
         )
         this.jewelsCollectedText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels: 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
         
-        // const myPlatform = this.add.tileSprite(0, 0, 16, 16 * 3, 'test-platform')
-        // myPlatform.setOrigin(0)
-        // myPlatform.setScale(3.0)
-        // this.platforms.add(myPlatform)
+        // start adding colliders to spikes
+
+        this.spikes = this.physics.add.group({
+            classType: Spike,   
+            immovable: true,
+            allowGravity: false,
+            maxSize: 30,
+            velocityY: -450,
+            removeCallback: function (spike) {
+                spike.scene.spikePool.add(spike)
+            }
+        })
+
+        this.spikePool = this.physics.add.group({
+            removeCallback: function (spike) {
+                spike.scene.spikes.add(spike)
+            }
+        })
+
+        // spike collide with player
+        this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this)
 
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
@@ -146,17 +177,35 @@ export default class Game extends Phaser.Scene{
 
         // HANDLING PLATFORMS
         this.platforms.getChildren().forEach(function(platform){
-            // console.log(`RECYCLE MYPLATS : ${platform}`)
-            let spawnDistance = (16 * 3) * 10
-            if(platform.y < spawnDistance){
-                console.log(`can spawn @ ${platform.y}`)
-                // this.spawnPlatform()
+            // console.log(`PLATFORM NAME : ${platform.name}`)
+            
+            // Spawn next plaform based on distance from bottom of screen to bottom of platform
+            let spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(0, 6)
+            // let spawnDistance = this.scale.height - (16 * 3)
+            
+            let platBottom    = platform.y + platform.displayHeight
+            if(platform.name !== 'hasSpawned' && platBottom < spawnDistance){
+                // console.log(`Spawn Distance : ${spawnDistance}`)
+                platform.name = 'hasSpawned'
+                // console.log(`PLATFORM NAME : ${platform.name}`)
+                // console.log(`can spawn @ ${platform.y}`) 
+                this.spawnPlatform()
             }
             
             // REMOVE PLATFORM
-            if(platform.y <= -platform.displayHeight){
+            if(platform.y < -platform.displayHeight){
+                platform.name = ''
                 this.platforms.killAndHide(platform)
                 this.platforms.remove(platform)
+            }
+        }, this)
+
+        // recycling spike
+        this.spikes.getChildren().forEach(function(spike){
+            if(spike.y < -spike.displayHeight){
+                this.spikes.killAndHide(spike)
+                this.spikes.remove(spike)
+                console.log(`Removing Platform`)
             }
         }, this)
 
@@ -204,11 +253,13 @@ export default class Game extends Phaser.Scene{
                 // double jump force
                 // flip gravity
                 if (this.player.body.gravity.x >= 0){
-                    this.player.body.gravity.x = -2000
+                    // this.player.body.gravity.x = -2000
+                    this.player.body.gravity.x *= -1
                     this.player.setVelocityX(-800)
                     this.player.setFlipX(false)
                 } else {
-                    this.player.body.gravity.x = 2000
+                    // this.player.body.gravity.x = 2000
+                    this.player.body.gravity.x *= -1
                     this.player.setVelocityX(800)
                     this.player.setFlipX(true)
                 }
@@ -316,6 +367,10 @@ export default class Game extends Phaser.Scene{
         this.sound.play('collect-jewel')
     }
 
+    handleDamage(player, spike){
+        console.log('Player Hit!')
+    }
+
     findBottomMostPlatform(){
         const platforms = this.platforms.getChildren()
         let bottomPlatform = platforms[0]
@@ -335,6 +390,7 @@ export default class Game extends Phaser.Scene{
     }
 
     handlePlayerDeath(){
+        console.log(`Game Over - End Score : ${this.jewelsCollected}`)
         this.scene.start('game-over')
     }
 
@@ -353,7 +409,7 @@ export default class Game extends Phaser.Scene{
     }
 
     // platform spawner. level difficulty
-    spawnPlatform(platHeight = Phaser.Math.RND.between(1, 5), spawnLeft = Phaser.Math.RND.pick([true, false])){
+    spawnPlatform(platHeight = Phaser.Math.RND.between(2, 5), spawnLeft = Phaser.Math.RND.pick([true, false])){
         let x
         // Set horizontal spawn position
         if (spawnLeft){
@@ -364,15 +420,15 @@ export default class Game extends Phaser.Scene{
 
         const y = this.scale.height
 
-        // let sizeHeight = 16 * platHeight
-        let sizeHeight = 16
+        let sizeHeight = 16 * platHeight
+        // let sizeHeight = 16
 
         let myPlatform
 
         if(this.platformPool.getLength()){
-            console.log('PLATFORM RECYLED')
+            // console.log('PLATFORM RECYLED')
             myPlatform = this.platformPool.getFirst()
-            console.log(`MYPLATS : ${myPlatform}`)
+            // console.log(`MYPLATS : ${myPlatform}`)
             myPlatform.x = x
             myPlatform.y = y
             myPlatform.setActive(true)
@@ -380,14 +436,45 @@ export default class Game extends Phaser.Scene{
             this.platformPool.remove(myPlatform)
         }
         else{
-            console.log('PLATFORM CREATED')
+            // console.log('PLATFORM CREATED')
             myPlatform = this.add.tileSprite(x, y, 16, sizeHeight, 'test-platform')
             myPlatform.setOrigin(0, 0)
             this.platforms.add(myPlatform)            
         }
         myPlatform.setSize(myPlatform.width, myPlatform.height)
         myPlatform.setScale(3.0)
-        console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+        // console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+
+        // is there a spike over the platform?
+        if(Phaser.Math.Between(1, 100) <= 50){
+            let spike
+            let spikeX
+            if (x > 0){
+                spikeX = (16 * 3)
+            } else {
+                spikeX = (16 * -3)
+            }
+            if(this.spikePool.getLength()){
+                spike = this.spikePool.getFirst()
+                spike.x = x - spikeX 
+                spike.y = y + myPlatform.displayHeight / 2
+                // spike.alpha = 1
+                spike.active = true
+                spike.visible = true
+                this.spikePool.remove(spike)
+            }
+            else{
+                spike = this.physics.add.sprite(x - spikeX, y + myPlatform.displayHeight / 2 , "spike")
+                spike.setImmovable(true)
+                // spike.setSize(8, 8, true)
+                spike.setDepth(2)
+                this.spikes.add(spike)
+            }
+            spike.setOrigin(0, 0)
+            spike.setScale(3.0)
+
+            console.log('SPIKE SPAWNED!')
+        }
         
     }
 }

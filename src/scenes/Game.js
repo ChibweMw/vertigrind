@@ -25,6 +25,7 @@ export default class Game extends Phaser.Scene{
     jewelsCollectedText
     timedEvent
     isGameStart
+    pauseButton
 
     constructor(){
         super('game')
@@ -161,6 +162,8 @@ export default class Game extends Phaser.Scene{
             this.scene.start('game')
         })
 
+        this.pauseButton = this.input.keyboard.addKey('P')
+
         // PLAY MAIN THEME MUSIC
 
         const mainTheme = this.sound.add('main-theme', {
@@ -172,10 +175,18 @@ export default class Game extends Phaser.Scene{
         this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
 
         mainTheme.play()
+        
     }
 
     update(t, dt){
 
+        const isPauseDown = Phaser.Input.Keyboard.JustDown(this.pauseButton) 
+        
+        if (isPauseDown && !this.scene.isPaused()){
+            // console.log('PAUSE')
+            this.scene.pause('game')
+            this.scene.launch('pause')
+        } 
         // HANDLING PLATFORMS
         this.platforms.getChildren().forEach(function(platform){
             // console.log(`PLATFORM NAME : ${platform.name}`)
@@ -400,6 +411,7 @@ export default class Game extends Phaser.Scene{
 
     handlePlayerDeath(){
         console.log(`Game Over - End Score : ${this.jewelsCollected}`)
+        this.scene.stop('pause')
         this.scene.start('game-over')
     }
 

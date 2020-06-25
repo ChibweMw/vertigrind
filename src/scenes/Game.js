@@ -26,6 +26,8 @@ export default class Game extends Phaser.Scene{
     timedEvent
     isGameStart
     pauseButton
+    // /** @type {Phaser.GameObjects.Particles} */
+    particlesGrind
 
     constructor(){
         super('game')
@@ -53,6 +55,11 @@ export default class Game extends Phaser.Scene{
 
         // load obstacle
         this.load.image('spike', 'assets/sprites/Environment/obstacle_spike.png')
+        
+        // load particles
+        this.load.image('particle-Grind-1', 'assets/sprites/Player/particle_grind-1.png')
+        this.load.image('particle-Grind-2', 'assets/sprites/Player/particle_grind-2.png')
+        this.load.image('particle-Grind-3', 'assets/sprites/Player/particle_grind-3.png')
 
         this.load.audio('jump', 'assets/sfx/jump-4.wav')
         this.load.audio('collect-jewel', 'assets/sfx/collect-1.wav')
@@ -67,14 +74,8 @@ export default class Game extends Phaser.Scene{
     }
 
     create(){
-        // let test_spike = this.add.image(340, 320, 'spike')
-        // test_spike.scale = 3.0
-        // test_spike.setOrigin(0, 0)
 
-        // test_spike.setFlipY(true)
-        // test_spike.setFlipX(true)
-
-        // test_spike.setRotation(Phaser.Math.DegToRad(90))
+        this.particlesGrind = this.add.particles('particle-Grind-1')
         
         console.log(`Screen height : ${this.scale.height}`)            
 
@@ -259,6 +260,32 @@ export default class Game extends Phaser.Scene{
         const touchingRight = this.player.body.touching.right
         if (touchingLeft || touchingRight){
             this.jumpCount = 0
+
+            // Particle emmiter for wall sliding
+            let grindPosition
+            let velocityX
+            let startAngle
+            if (touchingRight){
+                grindPosition = this.player.x + this.player.width / 2
+                velocityX = {min : 150, max : 550}
+            } else {
+                grindPosition = this.player.x - this.player.width / 2
+                velocityX = {min : -150, max : -550}
+            }
+
+            const emitterGrind = this.particlesGrind.createEmitter({
+                scale: 3,
+                speedX: velocityX,
+                speedY: {
+                    min: -350,
+                    max: -550
+                },
+                maxParticles: 1
+            })
+
+            this.particlesGrind.setDepth(emitterGrind)
+            
+            emitterGrind.emitParticleAt(grindPosition, this.player.y)
 
             // ADD TO SCORE WHILE GRINDING ON WALLS
             this.jewelsCollected++
@@ -445,14 +472,14 @@ export default class Game extends Phaser.Scene{
         let platformHeight = 16 * tileCount
         // let platformHeight = 16
 
-        console.log(`==================================`)
+        // console.log(`==================================`)
         
-        console.log(`Tile count : ${tileCount}`)
+        // console.log(`Tile count : ${tileCount}`)
         
-        console.log(`==================================`)
+        // console.log(`==================================`)
 
-        console.log(`PlatformHeight : ${platformHeight}`)
-        console.log(`PlatformHeight x 3 : ${platformHeight * 3}`)
+        // console.log(`PlatformHeight : ${platformHeight}`)
+        // console.log(`PlatformHeight x 3 : ${platformHeight * 3}`)
    
 
 
@@ -463,8 +490,8 @@ export default class Game extends Phaser.Scene{
             myPlatform = this.platformPool.getFirst()
             // console.log(`MYPLATS : ${myPlatform}`)
             // myPlatform.height = myPlatform.height * 3
-            console.log(`RECYCLED Plain Height : ${myPlatform.height}`)
-            console.log(`RECYCLED Plain Height x 3 : ${myPlatform.height * 3}`)
+            // console.log(`RECYCLED Plain Height : ${myPlatform.height}`)
+            // console.log(`RECYCLED Plain Height x 3 : ${myPlatform.height * 3}`)
 
             myPlatform.x = x
             myPlatform.y = y
@@ -483,65 +510,61 @@ export default class Game extends Phaser.Scene{
             this.platforms.add(myPlatform)            
         }
         
-        console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
-        console.log(`Plain Height : ${myPlatform.height}`)
+        // console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+        // console.log(`Plain Height : ${myPlatform.height}`)
 
-        // is there a spike over the platform?
-        if(Phaser.Math.Between(1, 100) <= 100){
-            console.log(`========================`)
+        if (this.jewelsCollected > 100) {
+            console.log(`passed 10 points`)
 
-            let spike
-            let spikeX
-            let spikeTileCount = tileCount - 1
-            let currentPlacement = Math.floor(Phaser.Math.RND.integerInRange(0, spikeTileCount))
-            let spikePlacementY = tileSize * currentPlacement
-            console.log(`Possible Spike Placements : ${spikeTileCount + 1}`)
-            console.log(`Current Placement : ${currentPlacement}`)            
-            console.log(`Relative Spike Pos Y : ${spikePlacementY}`)            
-            console.log(`Base Tile Size : ${tileSize}`)            
-            
-            let spikePosY = y + spikePlacementY
-            // console.log(`SPIKE PosY : ${spikePosY}`)
-            
-            let spikeHitBoxOffsetx
-            
-            if (x > 0){
-                spikeX = tileSize
-                spikeHitBoxOffsetx = 12
-            } else {
-                spikeX = -tileSize
-                spikeHitBoxOffsetx = 0
-            }
-            console.log(`Spike Pos X : ${spikeX}`)            
-
-            if(this.spikePool.getLength()){
-                spike = this.spikePool.getFirst()
-                spike.x = x - spikeX 
-                spike.y = spikePosY
-                spike.active = true
-                spike.visible = true
-                spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
-                this.spikePool.remove(spike)
-            }
-            else{
-                // console.log(`Tile Count : ${spikeTileCount}`)
+            // is there a spike over the platform?
+            if(Phaser.Math.Between(1, 100) <= 40){
+                // console.log(`========================`)
+    
+                let spike
+                let spikeX
+                let spikeTileCount = tileCount - 1
+                let currentPlacement = Math.floor(Phaser.Math.RND.integerInRange(0, spikeTileCount))
+                let spikePlacementY = tileSize * currentPlacement
+                // console.log(`Possible Spike Placements : ${spikeTileCount + 1}`)
+                // console.log(`Current Placement : ${currentPlacement}`)            
+                // console.log(`Relative Spike Pos Y : ${spikePlacementY}`)            
+                // console.log(`Base Tile Size : ${tileSize}`)            
                 
-                // console.log(`SPIKE Spawn Distance Y : ${spikePosY}`)
-
-                // spike = this.physics.add.sprite(x - spikeX, y + myPlatform.displayHeight / 2 , "spike")
-                spike = this.physics.add.sprite(x - spikeX, spikePosY, "spike")
-                spike.setImmovable(true)
-                spike.setOrigin(0, 0)
-                spike.setScale(3.0)
-                spike.setSize(4, 8, true) // hitbox
-                spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
-                spike.setDepth(2)
-                this.spikes.add(spike)
+                let spikePosY = y + spikePlacementY
+                // console.log(`SPIKE PosY : ${spikePosY}`)
+                
+                let spikeHitBoxOffsetx
+                
+                if (x > 0){
+                    spikeX = tileSize
+                    spikeHitBoxOffsetx = 12
+                } else {
+                    spikeX = -tileSize
+                    spikeHitBoxOffsetx = 0
+                }
+                // console.log(`Spike Pos X : ${spikeX}`)            
+    
+                if(this.spikePool.getLength()){
+                    spike = this.spikePool.getFirst()
+                    spike.x = x - spikeX 
+                    spike.y = spikePosY
+                    spike.active = true
+                    spike.visible = true
+                    spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
+                    this.spikePool.remove(spike)
+                }
+                else{
+                    spike = this.physics.add.sprite(x - spikeX, spikePosY, "spike")
+                    spike.setImmovable(true)
+                    spike.setOrigin(0, 0)
+                    spike.setScale(3.0)
+                    spike.setSize(4, 8, true) // 'true' is set to center hitbox
+                    spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
+                    spike.setDepth(2)
+                    this.spikes.add(spike)
+                }
             }
             
-
-            // console.log('SPIKE SPAWNED!')
         }
-        
     }
 }

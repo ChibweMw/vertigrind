@@ -3,6 +3,7 @@ import Phaser from  '../lib/phaser.js'
 // import Jewel class here
 import Jewel from '../game/Jewel.js'
 import Spike from '../game/Spike.js'
+import GameOptions from '../GameOptions.js'
 
 export default class Game extends Phaser.Scene{
 
@@ -65,21 +66,23 @@ export default class Game extends Phaser.Scene{
     }
 
     create(){
-        let test_spike = this.add.image(340, 320, 'spike')
-        test_spike.scale = 3.0
-        test_spike.setOrigin(0, 0)
+        // let test_spike = this.add.image(340, 320, 'spike')
+        // test_spike.scale = 3.0
+        // test_spike.setOrigin(0, 0)
 
-        test_spike.setFlipY(true)
-        test_spike.setFlipX(true)
+        // test_spike.setFlipY(true)
+        // test_spike.setFlipX(true)
 
-        test_spike.setRotation(Phaser.Math.DegToRad(90))
+        // test_spike.setRotation(Phaser.Math.DegToRad(90))
         
+        console.log(`Screen height : ${this.scale.height}`)            
+
         // start adding colliders to platforms
         this.platforms = this.physics.add.group({
             classType: Phaser.GameObjects.TileSprite,   
             immovable: true,
             allowGravity: false,
-            velocityY: -450,
+            velocityY: (GameOptions.platformStartSpeed * -1),
             maxSize: 30,
             removeCallback: function (platform) {
                 platform.scene.platformPool.add(platform)
@@ -96,8 +99,6 @@ export default class Game extends Phaser.Scene{
 
         // create a bunny sprite
         this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
-
-        // this.player.body.gravity.x = -2000
         
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
@@ -140,7 +141,7 @@ export default class Game extends Phaser.Scene{
             immovable: true,
             allowGravity: false,
             maxSize: 30,
-            velocityY: -450,
+            velocityY: (GameOptions.platformStartSpeed * -1),
             removeCallback: function (spike) {
                 spike.scene.spikePool.add(spike)
             }
@@ -178,18 +179,23 @@ export default class Game extends Phaser.Scene{
         // HANDLING PLATFORMS
         this.platforms.getChildren().forEach(function(platform){
             // console.log(`PLATFORM NAME : ${platform.name}`)
+
+            platform.update()
+            // scroll texture vertically
+            // platform.tilePositionY++
+
             
             // Spawn next plaform based on distance from bottom of screen to bottom of platform
-            let spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(0, 6)
+            let spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
             // let spawnDistance = this.scale.height - (16 * 3)
             
             let platBottom    = platform.y + platform.displayHeight
-            if(platform.name !== 'hasSpawned' && platBottom < spawnDistance){
-                // console.log(`Spawn Distance : ${spawnDistance}`)
+            if(platform.name !== 'hasSpawned' && platBottom <= spawnDistance){
+                this.spawnPlatform()
                 platform.name = 'hasSpawned'
+                // console.log(`Spawn Distance : ${spawnDistance}`)
                 // console.log(`PLATFORM NAME : ${platform.name}`)
                 // console.log(`can spawn @ ${platform.y}`) 
-                this.spawnPlatform()
             }
             
             // REMOVE PLATFORM
@@ -202,10 +208,13 @@ export default class Game extends Phaser.Scene{
 
         // recycling spike
         this.spikes.getChildren().forEach(function(spike){
+            
+            spike.update()
+
             if(spike.y < -spike.displayHeight){
                 this.spikes.killAndHide(spike)
                 this.spikes.remove(spike)
-                console.log(`Removing Platform`)
+                // console.log(`Removing spike`)
             }
         }, this)
 
@@ -222,13 +231,13 @@ export default class Game extends Phaser.Scene{
         const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
         const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
 
-        let candoubleJump = this.jumpCount < 2
+        let candoubleJump = this.jumpCount < GameOptions.playerJumpCount
 
         if (!this.isGameStart && isJustDownJump){
             this.isGameStart = true
             // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
-            this.player.body.gravity.x = -2000
-        }
+            this.player.body.gravity.x = GameOptions.playerGravity * -1
+            }
 
         if (isJustUpJump && vy !== 0 && candoubleJump){
             this.player.setVelocityX(0)
@@ -255,20 +264,20 @@ export default class Game extends Phaser.Scene{
                 if (this.player.body.gravity.x >= 0){
                     // this.player.body.gravity.x = -2000
                     this.player.body.gravity.x *= -1
-                    this.player.setVelocityX(-800)
+                    this.player.setVelocityX(-GameOptions.playerJumpForce)
                     this.player.setFlipX(false)
                 } else {
                     // this.player.body.gravity.x = 2000
                     this.player.body.gravity.x *= -1
-                    this.player.setVelocityX(800)
+                    this.player.setVelocityX(GameOptions.playerJumpForce)
                     this.player.setFlipX(true)
                 }
             } else {
                 if (this.player.body.gravity.x >= 0){
-                    this.player.setVelocityX(-800)
+                    this.player.setVelocityX(-GameOptions.playerJumpForce)
                     // console.log('GRAVITY FLIPPED')
                 } else {
-                    this.player.setVelocityX(800)
+                    this.player.setVelocityX(GameOptions.playerJumpForce)
                 }
                 
             }
@@ -409,19 +418,31 @@ export default class Game extends Phaser.Scene{
     }
 
     // platform spawner. level difficulty
-    spawnPlatform(platHeight = Phaser.Math.RND.between(2, 5), spawnLeft = Phaser.Math.RND.pick([true, false])){
+    spawnPlatform(tileCount = Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1]), spawnLeft = Phaser.Math.RND.pick([true, false])){
         let x
+        let tileSize = (16 * 3)
         // Set horizontal spawn position
         if (spawnLeft){
             x = 0
         } else {
-            x = this.scale.width - 16 * 3
+            x = this.scale.width - tileSize
         }
 
         const y = this.scale.height
 
-        let sizeHeight = 16 * platHeight
-        // let sizeHeight = 16
+        let platformHeight = 16 * tileCount
+        // let platformHeight = 16
+
+        console.log(`==================================`)
+        
+        console.log(`Tile count : ${tileCount}`)
+        
+        console.log(`==================================`)
+
+        console.log(`PlatformHeight : ${platformHeight}`)
+        console.log(`PlatformHeight x 3 : ${platformHeight * 3}`)
+   
+
 
         let myPlatform
 
@@ -429,51 +450,85 @@ export default class Game extends Phaser.Scene{
             // console.log('PLATFORM RECYLED')
             myPlatform = this.platformPool.getFirst()
             // console.log(`MYPLATS : ${myPlatform}`)
+            // myPlatform.height = myPlatform.height * 3
+            console.log(`RECYCLED Plain Height : ${myPlatform.height}`)
+            console.log(`RECYCLED Plain Height x 3 : ${myPlatform.height * 3}`)
+
             myPlatform.x = x
             myPlatform.y = y
             myPlatform.setActive(true)
             myPlatform.setVisible(true)
+
             this.platformPool.remove(myPlatform)
         }
         else{
             // console.log('PLATFORM CREATED')
-            myPlatform = this.add.tileSprite(x, y, 16, sizeHeight, 'test-platform')
+            myPlatform = this.add.tileSprite(x, y, 16, platformHeight, 'test-platform')
             myPlatform.setOrigin(0, 0)
+            myPlatform.setSize(myPlatform.width, myPlatform.height)
+            myPlatform.setScale(3.0)
+
             this.platforms.add(myPlatform)            
         }
-        myPlatform.setSize(myPlatform.width, myPlatform.height)
-        myPlatform.setScale(3.0)
-        // console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+        
+        console.log(`DISPLAYHEIGHT : ${myPlatform.displayHeight}`)
+        console.log(`Plain Height : ${myPlatform.height}`)
 
         // is there a spike over the platform?
-        if(Phaser.Math.Between(1, 100) <= 50){
+        if(Phaser.Math.Between(1, 100) <= 100){
+            console.log(`========================`)
+
             let spike
             let spikeX
+            let spikeTileCount = tileCount - 1
+            let currentPlacement = Math.floor(Phaser.Math.RND.integerInRange(0, spikeTileCount))
+            let spikePlacementY = tileSize * currentPlacement
+            console.log(`Possible Spike Placements : ${spikeTileCount + 1}`)
+            console.log(`Current Placement : ${currentPlacement}`)            
+            console.log(`Relative Spike Pos Y : ${spikePlacementY}`)            
+            console.log(`Base Tile Size : ${tileSize}`)            
+            
+            let spikePosY = y + spikePlacementY
+            // console.log(`SPIKE PosY : ${spikePosY}`)
+            
+            let spikeHitBoxOffsetx
+            
             if (x > 0){
-                spikeX = (16 * 3)
+                spikeX = tileSize
+                spikeHitBoxOffsetx = 12
             } else {
-                spikeX = (16 * -3)
+                spikeX = -tileSize
+                spikeHitBoxOffsetx = 0
             }
+            console.log(`Spike Pos X : ${spikeX}`)            
+
             if(this.spikePool.getLength()){
                 spike = this.spikePool.getFirst()
                 spike.x = x - spikeX 
-                spike.y = y + myPlatform.displayHeight / 2
-                // spike.alpha = 1
+                spike.y = spikePosY
                 spike.active = true
                 spike.visible = true
+                spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
                 this.spikePool.remove(spike)
             }
             else{
-                spike = this.physics.add.sprite(x - spikeX, y + myPlatform.displayHeight / 2 , "spike")
+                // console.log(`Tile Count : ${spikeTileCount}`)
+                
+                // console.log(`SPIKE Spawn Distance Y : ${spikePosY}`)
+
+                // spike = this.physics.add.sprite(x - spikeX, y + myPlatform.displayHeight / 2 , "spike")
+                spike = this.physics.add.sprite(x - spikeX, spikePosY, "spike")
                 spike.setImmovable(true)
-                // spike.setSize(8, 8, true)
+                spike.setOrigin(0, 0)
+                spike.setScale(3.0)
+                spike.setSize(4, 8, true) // hitbox
+                spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
                 spike.setDepth(2)
                 this.spikes.add(spike)
             }
-            spike.setOrigin(0, 0)
-            spike.setScale(3.0)
+            
 
-            console.log('SPIKE SPAWNED!')
+            // console.log('SPIKE SPAWNED!')
         }
         
     }

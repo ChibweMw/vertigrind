@@ -19,7 +19,7 @@ export default new Phaser.Game({
             debug: true
         },
     },
-    backgroundColor: 'rgba(68, 136, 170, 0.5)'
+    backgroundColor: '#243338'
 })
 
 console.log('VERTIGRIND DEVELOPMENT STATUS: ONLINE');

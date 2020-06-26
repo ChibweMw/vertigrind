@@ -46,7 +46,7 @@ export default class Game extends Phaser.Scene{
         // load a platform image
         this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png')
         
-        this.load.image('bunny-stand', 'assets/sprites/Player/bunny_stand.png')
+        this.load.image('bunny-stand', 'assets/sprites/Player/bunny_grind-2.png')
         
         this.load.image('bunny-jump', 'assets/sprites/Player/bunny_jump.png')
 
@@ -134,7 +134,7 @@ export default class Game extends Phaser.Scene{
             undefined,
             this
         )
-        this.jewelsCollectedText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels: 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
+        this.jewelsCollectedText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels : 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
         
         // start adding colliders to spikes
 
@@ -186,7 +186,7 @@ export default class Game extends Phaser.Scene{
         if (isPauseDown && !this.scene.isPaused()){
             // console.log('PAUSE')
             this.scene.pause('game')
-            this.scene.launch('pause')
+            this.scene.launch('pause', {score : this.jewelsCollected})
         } 
         // HANDLING PLATFORMS
         this.platforms.getChildren().forEach(function(platform){
@@ -336,14 +336,6 @@ export default class Game extends Phaser.Scene{
             this.player.setTexture('bunny-stand')
         }
 
-        // this.horizontalWrap(this.player)
-
-        // const bottomPlatform = this.findBottomMostPlatform()
-        
-        // if (this.player.y > bottomPlatform.y + 200){
-        //     this.handlePlayerDeath()
-        // }
-
         this.wordlBoundKill(this.player)
 
         if (this.player.x > this.scale.width || this.player.x < -this.player.displayWidth){
@@ -438,8 +430,10 @@ export default class Game extends Phaser.Scene{
 
     handlePlayerDeath(){
         console.log(`Game Over - End Score : ${this.jewelsCollected}`)
-        this.scene.stop('pause')
-        this.scene.start('game-over')
+        if (this.scene.isActive('pause')){
+            this.scene.stop('pause')
+        }
+        this.scene.start('game-over', {score : this.jewelsCollected})
     }
 
     /**

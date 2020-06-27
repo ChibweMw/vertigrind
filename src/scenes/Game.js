@@ -508,12 +508,13 @@ export default class Game extends Phaser.Scene{
         // console.log(`Plain Height : ${myPlatform.height}`)
 
         if (this.jewelsCollected > 100) {
-            console.log(`passed 10 points`)
+            console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?
-            if(Phaser.Math.Between(1, 100) <= 40){
+            if(Phaser.Math.Between(1, 100) <= 60){
                 // console.log(`========================`)
-    
+                
+                /** @type {Phaser.Physics.Arcade.Sprite} */
                 let spike
                 let spikeX
                 let spikeTileCount = tileCount - 1
@@ -529,7 +530,7 @@ export default class Game extends Phaser.Scene{
                 
                 let spikeHitBoxOffsetx
                 
-                if (x > 0){
+                if (!spawnLeft){
                     spikeX = tileSize
                     spikeHitBoxOffsetx = 12
                 } else {
@@ -556,6 +557,12 @@ export default class Game extends Phaser.Scene{
                     spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
                     spike.setDepth(2)
                     this.spikes.add(spike)
+                }
+
+                if (spawnLeft){
+                    spike.setFlipX(false)
+                } else {
+                    spike.setFlipX(true)
                 }
             }
             

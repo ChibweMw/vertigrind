@@ -3,7 +3,7 @@ import Phaser from '../lib/phaser.js'
 export default class Menu extends Phaser.Scene{
 
     menuItemPos = 0
-    menuItems = ['game', 'credits']
+    menuItems = ['game', 'options', 'credits']
     /** @type {Phaser.GameObjects.Text} */   
     menuText
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -31,26 +31,18 @@ export default class Menu extends Phaser.Scene{
         const style = { color: '#fff', fontSize: 24}
         // this.add.text(width * 0.5, height * 0.1, 'Main Menu', style).setOrigin(0.5)
         
-        this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'Main Menu', 32).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'VertiGrind', 64).setOrigin(0.5)
 
         // this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', `${this.menuItems[this.menuItemPos]}`, 24).setOrigin(0.5)
         this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks')
+        // config menu text
         this.menuText.setMaxWidth(100)
         this.menuText.setOrigin(0.5)
         this.menuText.setFontSize(24)
         this.menuText.setText(this.menuItems)
 
-
+        console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
         
-        
-        // this.menuItems.forEach(menuItem => {
-        //     this.menuText.text += `${menuItem} `
-        //     console.log(`IN LOOP : ${menuItem}`)
-        // })
-        
-        // console.log(`TypeOf Menu Items : ${typeof(this.menuText.text[0])}`)
-        console.log(`TypeOf Menu Items : ${this.menuText.text}`)
-
         this.input.keyboard.once('keydown_ENTER', () => {
             this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
         })
@@ -66,12 +58,16 @@ export default class Menu extends Phaser.Scene{
             }else {
                 this.menuItemPos++
             }
+            console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
+
         } else if (isJustDown_Up){
             if (this.menuItemPos <= 0){
                 this.menuItemPos = this.menuItems.length - 1
             } else {
                 this.menuItemPos--
-            }            
+            }    
+            console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
+        
         }
         // display items
         this.menuItems.forEach((menutextItem, index) => {
@@ -83,7 +79,6 @@ export default class Menu extends Phaser.Scene{
             }
         }) 
         
-        console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
         this.menuText.text = this.menuItems
 
     }

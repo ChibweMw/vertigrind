@@ -11,5 +11,7 @@ export default class Spike extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture)
 
         this.setScale(3.0)
+        this.setOrigin(0, 0)
+        this.setDepth(2)
     }
 }

@@ -140,10 +140,7 @@ export default class Game extends Phaser.Scene{
 
         this.spikes = this.physics.add.group({
             classType: Spike,   
-            immovable: true,
             allowGravity: false,
-            maxSize: 30,
-            velocityY: (GameOptions.platformStartSpeed * -1),
             removeCallback: function (spike) {
                 spike.scene.spikePool.add(spike)
             }
@@ -460,10 +457,11 @@ export default class Game extends Phaser.Scene{
         if (spawnLeft){
             x = 0
         } else {
+            // x = 0
             x = this.scale.width - tileSize
         }
 
-        const y = this.scale.height
+        let y = this.scale.height
 
         let platformHeight = 16 * tileCount
         // let platformHeight = 16
@@ -492,11 +490,11 @@ export default class Game extends Phaser.Scene{
         
         myPlatform.setScale(3.0)
 
-        if (this.jewelsCollected > -100) {
+        if (this.jewelsCollected > 100) {
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?
-            if(Phaser.Math.Between(1, 100) <= 100){
+            if(Phaser.Math.Between(1, 100) <= 60 && tileCount > 3){
                 // console.log(`========================`)
                 
                 /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -510,43 +508,50 @@ export default class Game extends Phaser.Scene{
                 
                 let spikeHitBoxOffsetx
                 
-                if (!spawnLeft){
+                if (spawnLeft){
+                    spikeX = x + tileSize
+                    spikeHitBoxOffsetx = 0
+                } else {
                     spikeX = x - tileSize
                     spikeHitBoxOffsetx = 12
-                } else {
-                    spikeX = x - -tileSize
-                    spikeHitBoxOffsetx = 0
                 }
                 
-                if(this.spikePool.getLength() > 10){
+                if(this.spikePool.getLength()){
                     spike = this.spikePool.getFirst()
                     spike.x = spikeX 
                     spike.y = spikePosY
                     spike.active = true
                     spike.visible = true
-                    // spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
+                    spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
                     this.spikePool.remove(spike)
                 }
                 else{
-                    spike = this.physics.add.sprite(spikeX, spikePosY, "spike")
-                    console.log(`var spikeX : ${spikeX}`)
-                    spike.setImmovable(true)
-                    // spike.setSize(4, 8, true) // 'true' is set to center hitbox
-                    // spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
+                    // spike = this.physics.add.sprite(tileSize, spikePosY, "spike")
+                    spike = this.spikes.get(spikeX, spikePosY, "spike")
+
+                    // this.add.existing(spike)
+                    spike.setActive(true)
+                    spike.setVisible(true)
+
+                    // update the physics body
+                    // spike.body.setSize(spike.width, spike.height)
+                    spike.body.setSize(4, 8, true) // 'true' is set to center hitbox
+                    spike.body.setOffset(spikeHitBoxOffsetx, spike.height / 2)
+
+                    spike.body.setAllowGravity(false)
+
+                    // make sure body is enabled in the physics world
+                    this.physics.world.enable(spike)
                     this.spikes.add(spike)
                 }
-                spike.setScale(3.0)
-                spike.setOrigin(0, 0)
-
-                spike.setDepth(2)
+                spike.setVelocityY(myPlatform.body.velocity.y)
 
                 if (spawnLeft){
                     spike.setFlipX(false)
                 } else {
                     spike.setFlipX(true)
                 }
-            }
-            
+            }            
         }
     }
 }

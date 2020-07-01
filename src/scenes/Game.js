@@ -3,6 +3,7 @@ import Phaser from  '../lib/phaser.js'
 // import Jewel class here
 import Jewel from '../game/Jewel.js'
 import Spike from '../game/Spike.js'
+import Platform from '../game/Platform.js'
 import GameOptions from '../GameOptions.js'
 
 export default class Game extends Phaser.Scene{
@@ -26,6 +27,7 @@ export default class Game extends Phaser.Scene{
     timedEvent
     isGameStart
     pauseButton
+    debugButton
     // /** @type {Phaser.GameObjects.Particles} */
     particlesGrind
 
@@ -77,11 +79,11 @@ export default class Game extends Phaser.Scene{
 
         this.particlesGrind = this.add.particles('particle-Grind-1')
         
-        console.log(`Screen height : ${this.scale.height}`)            
+        // console.log(`Screen height : ${this.scale.height}`)            
 
         // start adding colliders to platforms
         this.platforms = this.physics.add.group({
-            classType: Phaser.GameObjects.TileSprite,   
+            classType: Platform,   
             immovable: true,
             allowGravity: false,
             velocityY: (GameOptions.platformStartSpeed * -1),
@@ -161,6 +163,7 @@ export default class Game extends Phaser.Scene{
         })
 
         this.pauseButton = this.input.keyboard.addKey('P')
+        // this.debugButton = this.input.keyboard.addKey('A')
 
         // PLAY MAIN THEME MUSIC
 
@@ -178,7 +181,13 @@ export default class Game extends Phaser.Scene{
 
     update(t, dt){
 
-        // console.log(`VALUE OF 't' : ${t}`)
+
+        // toggle debug view
+        // const isDebugDown = Phaser.Input.Keyboard.JustDown(this.debugButton)
+        // if (isDebugDown){
+        //     GameOptions.isDebug = !GameOptions.isDebug
+        //     console.log(GameOptions.isDebug)
+        // }
 
         const isPauseDown = Phaser.Input.Keyboard.JustDown(this.pauseButton) 
         
@@ -196,10 +205,15 @@ export default class Game extends Phaser.Scene{
             // platform.tilePositionY++
             
             // Spawn next plaform based on distance from bottom of screen to bottom of platform
-            let spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
+            let spawnDistance
+            let platBottom    = platform.y + platform.displayHeight
+            if (this.isGameStart){
+                spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
+            } else {
+                spawnDistance = this.scale.height - (16 * 3) * 0
+            }
             // let spawnDistance = this.scale.height - (16 * 3)
             
-            let platBottom    = platform.y + platform.displayHeight
             if(platform.name !== 'hasSpawned' && platBottom <= spawnDistance){
                 this.spawnPlatform()
                 platform.name = 'hasSpawned'
@@ -244,7 +258,7 @@ export default class Game extends Phaser.Scene{
         let candoubleJump = this.jumpCount < GameOptions.playerJumpCount
 
         if (!this.isGameStart && isJustDownJump){
-            this.isGameStart = true
+            // this.isGameStart = true
             // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
             this.player.body.gravity.x = GameOptions.playerGravity * -1
             }
@@ -257,6 +271,9 @@ export default class Game extends Phaser.Scene{
         const touchingLeft = this.player.body.touching.left
         const touchingRight = this.player.body.touching.right
         if (touchingLeft || touchingRight){
+            if (!this.isGameStart){
+                this.isGameStart = true
+            }
             this.jumpCount = 0
 
             // Particle emmiter for wall sliding
@@ -457,8 +474,11 @@ export default class Game extends Phaser.Scene{
         if (spawnLeft){
             x = 0
         } else {
-            // x = 0
-            x = this.scale.width - tileSize
+            if (this.isGameStart && this.jewelsCollected > GameOptions.levelDifficulty[0]){
+                x = this.scale.width - tileSize
+            } else {
+                x = 0
+            }
         }
 
         let y = this.scale.height
@@ -466,7 +486,7 @@ export default class Game extends Phaser.Scene{
         let platformHeight = 16 * tileCount
         // let platformHeight = 16
 
-        /** @type {Phaser.GameObjects.TileSprite */
+        /** @type {Phaser.GameObjects.TileSprite} */
         let myPlatform
 
         if(this.platformPool.getLength()){
@@ -479,18 +499,29 @@ export default class Game extends Phaser.Scene{
             this.platformPool.remove(myPlatform)
         }
         else{
-            myPlatform = this.add.tileSprite(x, y, 16, platformHeight, 'test-platform')
-            myPlatform.setOrigin(0, 0)    
+            // myPlatform = this.add.tileSprite(x, y, 16, platformHeight, 'test-platform')
+            // myPlatform.setOrigin(0, 0)   
+            
+            myPlatform = this.platforms.get(x, y)
+            myPlatform.setTexture('test-platform')
 
+            // this.add.existing(spike)
+            myPlatform.setActive(true)
+            myPlatform.setVisible(true)
+
+            myPlatform.body.setAllowGravity(false)
+            // make sure body is enabled in the physics world
+            this.physics.world.enable(myPlatform)
             this.platforms.add(myPlatform)            
         }
         
+        myPlatform.width = 16
         myPlatform.height = platformHeight
         myPlatform.body.setSize(myPlatform.width, platformHeight)
         
         myPlatform.setScale(3.0)
 
-        if (this.jewelsCollected > 100) {
+        if (this.jewelsCollected > GameOptions.levelDifficulty[1]) {
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?

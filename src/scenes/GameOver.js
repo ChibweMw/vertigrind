@@ -1,6 +1,9 @@
 import Phaser from '../lib/phaser.js'
+// import SceneTransition from './Transitions.js'
 
 export default class GameOver extends Phaser.Scene{
+
+// export default class GameOver extends SceneTransition{
 
     currentScore
 
@@ -18,15 +21,14 @@ export default class GameOver extends Phaser.Scene{
     }
 
     create(){
+        // super.create()
         // use ScaleManager to get with and height of game
         const width = this.scale.width
         const height = this.scale.height
-        console.log('Game Over')
-        // const style = { color: '#fff', fontSize: 24}
-        // this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', 'Game Over', 44).setOrigin(0.5)
-        // this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', `Final Score : ${this.currentScore}`, 32).setOrigin(0.5)
+
+        console.log('Transitioned Into Game Over Scene')
         
-        console.log('Game Over')
+        // console.log('Game Over')
         this.add.bitmapText(width * 0.5, height * 0.25, 'babyblocks', 'Game Over', 42).setOrigin(0.5)
         this.add.bitmapText(width * 0.5, height * 0.25 + 42, 'babyblocks', `Final Score : ${this.currentScore}`, 22).setOrigin(0.5)
         this.add.bitmapText(10, 10, 'babyblocks', "'Q' for Main Menu", 16).setOrigin(0, 0)
@@ -38,6 +40,11 @@ export default class GameOver extends Phaser.Scene{
 
         this.input.keyboard.once('keydown_SPACE', () => {
             this.scene.start('game')
+            // this.scene.start('game')
+            // this.scene.transition({
+            //     duration: 2500,
+            //     target: 'game'
+            // })
         })
     }
 }

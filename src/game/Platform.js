@@ -1,4 +1,4 @@
-import Phase from '../lib/phaser.js'
+import Phaser from '../lib/phaser.js'
 
 export default class Platform extends Phaser.GameObjects.TileSprite {
     /**

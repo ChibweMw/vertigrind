@@ -1,6 +1,8 @@
 import Phaser from '../lib/phaser.js'
+// import SceneTransition from './Transitions.js'
 
 export default class Menu extends Phaser.Scene{
+// export default class Menu extends SceneTransition{
 
     menuItemPos = 0
     menuItems = ['game', 'options', 'credits']
@@ -24,6 +26,7 @@ export default class Menu extends Phaser.Scene{
     }
 
     create(){
+        // super.create()
         // use ScaleManager to get with and height of game
         const width = this.scale.width
         const height = this.scale.height
@@ -45,6 +48,10 @@ export default class Menu extends Phaser.Scene{
         
         this.input.keyboard.once('keydown_ENTER', () => {
             this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
+            // this.scene.transition({
+            //     duration: 2500,
+            //     target: `${this.menuItems[this.menuItemPos].replace('> ', '')}`
+            // })
         })
     }
 

@@ -1,4 +1,6 @@
 import Phaser from  '../lib/phaser.js'
+// import SceneTransition from './Transitions.js'
+
 
 // import Jewel class here
 import Jewel from '../game/Jewel.js'
@@ -7,8 +9,9 @@ import Platform from '../game/Platform.js'
 import GameOptions from '../GameOptions.js'
 
 export default class Game extends Phaser.Scene{
+// export default class Game extends SceneTransition{
 
-    jewelsCollected = 0
+    score = 0
     jumpCount = 0
     /** @type {Phaser.Physics.Arcade.Group} */
     platforms
@@ -23,7 +26,7 @@ export default class Game extends Phaser.Scene{
     spikes
     spikePool
     /** @type {Phaser.GameObjects.Text} */
-    jewelsCollectedText
+    scoreText
     timedEvent
     isGameStart
     pauseButton
@@ -36,7 +39,7 @@ export default class Game extends Phaser.Scene{
     }
 
     init(){
-        this.jewelsCollected = 0
+        this.score = 0
         this.jumpCount = 0
         this.sound.stopAll()
         this.isGameStart = false
@@ -76,6 +79,7 @@ export default class Game extends Phaser.Scene{
     }
 
     create(){
+        // super.create()
 
         this.particlesGrind = this.add.particles('particle-Grind-1')
         
@@ -136,7 +140,7 @@ export default class Game extends Phaser.Scene{
             undefined,
             this
         )
-        this.jewelsCollectedText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels : 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
+        this.scoreText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels : 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
         
         // start adding colliders to spikes
 
@@ -159,7 +163,7 @@ export default class Game extends Phaser.Scene{
 
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
-            this.scene.start('game')
+            this.scene.restart('game')
         })
 
         this.pauseButton = this.input.keyboard.addKey('P')
@@ -194,9 +198,10 @@ export default class Game extends Phaser.Scene{
         if (isPauseDown && !this.scene.isPaused()){
             // console.log('PAUSE')
             this.scene.pause('game')
-            this.scene.launch('pause', {score : this.jewelsCollected})
+            this.scene.launch('pause', {score : this.score})
         } 
         // HANDLING PLATFORMS
+        /** @type {Platform} */
         this.platforms.getChildren().forEach(function(platform){
             // console.log(`PLATFORM NAME : ${platform.name}`)
             
@@ -204,13 +209,17 @@ export default class Game extends Phaser.Scene{
             // scroll texture vertically
             // platform.tilePositionY++
             
+            // if (this.score > 50 && this.score < 100){
+            //     console.log(`platform velocity ${platform.body.velocity.y}`)
+            // }
+            
             // Spawn next plaform based on distance from bottom of screen to bottom of platform
             let spawnDistance
             let platBottom    = platform.y + platform.displayHeight
             if (this.isGameStart){
                 spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
             } else {
-                spawnDistance = this.scale.height - (16 * 3) * 0
+                spawnDistance = this.scale.height - (16 * 3) * 0 //- platform.displayHeight
             }
             // let spawnDistance = this.scale.height - (16 * 3)
             
@@ -304,9 +313,9 @@ export default class Game extends Phaser.Scene{
             emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
 
             // ADD TO SCORE WHILE GRINDING ON WALLS
-            this.jewelsCollected++
-            const value = `Jewels: ${this.jewelsCollected}`
-            this.jewelsCollectedText.text = value
+            this.score++
+            const value = `Jewels: ${this.score}`
+            this.scoreText.text = value
         }
         
         if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
@@ -352,7 +361,10 @@ export default class Game extends Phaser.Scene{
             this.player.setTexture('bunny-stand')
         }
 
-        this.wordlBoundKill(this.player)
+        if (this.isGameStart) {
+            this.wordlBoundKill(this.player)
+        }
+
 
         if (this.player.x > this.scale.width || this.player.x < -this.player.displayWidth){
             this.handlePlayerDeath()
@@ -411,12 +423,12 @@ export default class Game extends Phaser.Scene{
         // disable from physics world
         this.physics.world.disableBody(jewel.body)
 
-        this.jewelsCollected++
-        console.log(`Jewels Collected: ${this.jewelsCollected}`)
+        this.score++
+        console.log(`Jewels Collected: ${this.score}`)
 
         // create new text value and set it
-        const value = `Jewels: ${this.jewelsCollected}`
-        this.jewelsCollectedText.text = value
+        const value = `Jewels: ${this.score}`
+        this.scoreText.text = value
 
         // play jewel collect sfx
         this.sound.play('collect-jewel')
@@ -445,11 +457,17 @@ export default class Game extends Phaser.Scene{
     }
 
     handlePlayerDeath(){
-        console.log(`Game Over - End Score : ${this.jewelsCollected}`)
+        console.log(`Game Over - End Score : ${this.score}`)
         if (this.scene.isActive('pause')){
             this.scene.stop('pause')
         }
-        this.scene.start('game-over', {score : this.jewelsCollected})
+        this.scene.start('game-over', {score : this.score})
+        this.isGameStart = false
+        // this.scene.transition({
+        //     duration: 1000,
+        //     target: 'game-over',
+        //     data: {score : this.score}
+        // })
     }
 
     /**
@@ -474,7 +492,7 @@ export default class Game extends Phaser.Scene{
         if (spawnLeft){
             x = 0
         } else {
-            if (this.isGameStart && this.jewelsCollected > GameOptions.levelDifficulty[0]){
+            if (this.isGameStart && this.score > GameOptions.levelDifficulty[0]){
                 x = this.scale.width - tileSize
             } else {
                 x = 0
@@ -521,7 +539,7 @@ export default class Game extends Phaser.Scene{
         
         myPlatform.setScale(3.0)
 
-        if (this.jewelsCollected > GameOptions.levelDifficulty[1]) {
+        if (this.score > GameOptions.levelDifficulty[1]) {
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?

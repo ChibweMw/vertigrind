@@ -6,6 +6,7 @@ import Phaser from  '../lib/phaser.js'
 import Jewel from '../game/Jewel.js'
 import Spike from '../game/Spike.js'
 import Player from '../game/Player.js'
+import PlayerInputState from '../game/states/PlayerInputState.js'
 import Platform from '../game/Platform.js'
 import GameOptions from '../GameOptions.js'
 
@@ -17,8 +18,10 @@ export default class Game extends Phaser.Scene{
     /** @type {Phaser.Physics.Arcade.Group} */
     platforms
     platformPool
+
     /** @type {Phaser.Physics.Arcade.Sprite} */
     player
+    
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     cursors
     /** @type {Phaser.Physics.Arcade.Group} */
@@ -35,6 +38,8 @@ export default class Game extends Phaser.Scene{
     // /** @type {Phaser.GameObjects.Particles} */
     particlesGrind
 
+    // cursors
+
     constructor(){
         super('game')
     }
@@ -44,6 +49,7 @@ export default class Game extends Phaser.Scene{
         this.jumpCount = 0
         this.sound.stopAll()
         this.isGameStart = false
+        this.cursors = this.input.keyboard.createCursorKeys()
     }
 
     preload(){
@@ -80,13 +86,13 @@ export default class Game extends Phaser.Scene{
 
 
         // Input
-        this.cursors = this.input.keyboard.createCursorKeys()
+        // this.cursors = this.input.keyboard.createCursorKeys()
     }
 
     create(){
         // super.create()
 
-        
+        const playerInputState = new PlayerInputState(this.cursors)
         
         // console.log(`Screen height : ${this.scale.height}`)            
 
@@ -130,10 +136,16 @@ export default class Game extends Phaser.Scene{
 
         this.particlesGrind = this.add.particles('particle-Grind-1')
 
-        // create a bunny sprite
+        // CREATE PLAYER SPRITE
+
         // this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
-        this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
+        // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
+
+        this.player = new Player(this, 240, 60, 'yogi-idle')
+        this.player.setControlState(playerInputState)
+        this.add.existing(this.player)
+
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').setScale(3.0)
         
         // add collision between player and tiles
@@ -231,6 +243,7 @@ export default class Game extends Phaser.Scene{
 
     update(t, dt){
 
+        this.player.update()
 
         // toggle debug view
         // const isDebugDown = Phaser.Input.Keyboard.JustDown(this.debugButton)
@@ -318,9 +331,9 @@ export default class Game extends Phaser.Scene{
             this.player.body.gravity.x = GameOptions.playerGravity * -1
             }
 
-        if (isJustUpJump && vy !== 0 && candoubleJump){
-            this.player.setVelocityX(0)
-        }
+        // if (isJustUpJump && vy !== 0 && candoubleJump){
+        //     this.player.setVelocityX(0)
+        // }
 
         // Check Arcade Physics if player colliding below
         const touchingLeft = this.player.body.touching.left
@@ -367,43 +380,43 @@ export default class Game extends Phaser.Scene{
             this.scoreText.text = value
         }
         
-        if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
-            // make bunny jump straight up
+        // if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
+        //     // make bunny jump straight up
 
-            if (this.jumpCount > 0){
-                // double jump force
-                // flip gravity
-                if (this.player.body.gravity.x >= 0){
-                    // this.player.body.gravity.x = -2000
-                    this.player.body.gravity.x *= -1
-                    this.player.setVelocityX(-GameOptions.playerJumpForce)
-                    this.player.setFlipX(false)
-                } else {
-                    // this.player.body.gravity.x = 2000
-                    this.player.body.gravity.x *= -1
-                    this.player.setVelocityX(GameOptions.playerJumpForce)
-                    this.player.setFlipX(true)
-                }
-            } else {
-                if (this.player.body.gravity.x >= 0){
-                    this.player.setVelocityX(-GameOptions.playerJumpForce)
-                    // console.log('GRAVITY FLIPPED')
-                } else {
-                    this.player.setVelocityX(GameOptions.playerJumpForce)
-                }
+        //     if (this.jumpCount > 0){
+        //         // double jump force
+        //         // flip gravity
+        //         if (this.player.body.gravity.x >= 0){
+        //             // this.player.body.gravity.x = -2000
+        //             this.player.body.gravity.x *= -1
+        //             this.player.setVelocityX(-GameOptions.playerJumpForce)
+        //             this.player.setFlipX(false)
+        //         } else {
+        //             // this.player.body.gravity.x = 2000
+        //             this.player.body.gravity.x *= -1
+        //             this.player.setVelocityX(GameOptions.playerJumpForce)
+        //             this.player.setFlipX(true)
+        //         }
+        //     } else {
+        //         if (this.player.body.gravity.x >= 0){
+        //             this.player.setVelocityX(-GameOptions.playerJumpForce)
+        //             // console.log('GRAVITY FLIPPED')
+        //         } else {
+        //             this.player.setVelocityX(GameOptions.playerJumpForce)
+        //         }
                 
-            }
+        //     }
 
-            // switch to jump texture
-            // this.player.setTexture('bunny-jump')
+        //     // switch to jump texture
+        //     // this.player.setTexture('bunny-jump')
 
-            // play jump sound
-            this.sound.play('jump')
+        //     // play jump sound
+        //     this.sound.play('jump')
             
-            this.jumpCount++
+        //     this.jumpCount++
             
-            // console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
-        }
+        //     // console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
+        // }
 
         // if (!isJustDownJump && (vy < 0 && this.player.body.gravity.x < 0 || vy > 0 && this.player.body.gravity.x > 0 ) && this.player.texture.key !== 'bunny-stand'){
         //     // switch back to stand when falling

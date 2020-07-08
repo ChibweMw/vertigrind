@@ -1,4 +1,4 @@
-import Phase from '../lib/phaser.js'
+import Phaser from '../lib/phaser.js'
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     /**
@@ -14,5 +14,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setScale(3.0)
         this.setOrigin(0, 0)
         this.setDepth(2)
+
+        this.controlState = undefined
+    }
+
+    setControlState(controlState){
+        this.controlState = controlState
+    }
+
+    update(){
+        if (!this.controlState){
+            return
+        }
+
+        this.controlState.update(this)
     }
 }

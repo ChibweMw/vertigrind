@@ -5,6 +5,7 @@ import Phaser from  '../lib/phaser.js'
 // import Jewel class here
 import Jewel from '../game/Jewel.js'
 import Spike from '../game/Spike.js'
+import Player from '../game/Player.js'
 import Platform from '../game/Platform.js'
 import GameOptions from '../GameOptions.js'
 
@@ -51,10 +52,14 @@ export default class Game extends Phaser.Scene{
         // load a platform image
         this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png')
         
-        this.load.image('bunny-stand', 'assets/sprites/Player/bunny_grind-2.png')
+        this.load.image('bunny-stand', 'assets/sprites/Player/yogi-test.png')
         
         this.load.image('bunny-jump', 'assets/sprites/Player/bunny_jump.png')
-
+        
+        // yogi assets
+        this.load.spritesheet('yogi-idle', 'assets/sprites/Player/anim_idle.png', { frameWidth: 14, frameHeight: 18, startFrame: 0, endFrame: 2 })
+        this.load.spritesheet('yogi-jump', 'assets/sprites/Player/anim_jump.png', { frameWidth: 10, frameHeight: 10, startFrame: 0, endFrame: 3 })
+        
         // load jewel image
         this.load.image('jewel', 'assets/sprites/Items/collectible_diamond.png')
 
@@ -81,7 +86,7 @@ export default class Game extends Phaser.Scene{
     create(){
         // super.create()
 
-        this.particlesGrind = this.add.particles('particle-Grind-1')
+        
         
         // console.log(`Screen height : ${this.scale.height}`)            
 
@@ -105,8 +110,31 @@ export default class Game extends Phaser.Scene{
 
         // this.spawnPlatform()
 
+        // create animations for player
+        const config_idle = {
+            key: 'yogiIdle',
+            frames: this.anims.generateFrameNumbers('yogi-idle', { start: 0, end: 2, first: 0 }),
+            frameRate: 8,
+            repeat: -1
+        }
+
+        const config_jump = {
+            key: 'yogiJump',
+            frames: this.anims.generateFrameNumbers('yogi-jump', { start: 0, end: 3, first: 0 }),
+            frameRate: 18,
+            repeat: -1
+        }
+
+        this.anims.create(config_idle)
+        this.anims.create(config_jump)
+
+        this.particlesGrind = this.add.particles('particle-Grind-1')
+
         // create a bunny sprite
-        this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
+        // this.player = this.physics.add.sprite(240, 60, 'bunny-stand').setScale(3.0)
+        // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
+        this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
+        // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').setScale(3.0)
         
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
@@ -178,6 +206,24 @@ export default class Game extends Phaser.Scene{
 
         // this.timedEvent = this.time.delayedCall(1500, this.spawnPlatform(4), [], this)
         this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
+
+        if (this.isGameStart){
+
+            const touchingLeft = this.player.body.touching.left
+            const touchingRight = this.player.body.touching.right
+
+            if ( (touchingLeft || touchingRight) && this.player.body.velocity.x){
+                this.player.anims.stop('yogiJump')
+                this.player.play('yogiIdle')
+
+                console.log('LANDED LANDED LANDED')
+                
+            } else if ( (!touchingLeft || !touchingRight) && this.player.body.velocity.x){
+                this.player.anims.stop('yogiIdle')
+                this.player.play('yogiJump')
+                
+            }
+        }
 
         mainTheme.play()
         
@@ -285,32 +331,35 @@ export default class Game extends Phaser.Scene{
             }
             this.jumpCount = 0
 
+            // this.player.anims.stop('yogiJump')
+            // this.player.play('yogiIdle')
+
             // Particle emmiter for wall sliding
-            let grindPositionX
-            let grindPositionY = this.player.y + this.player.displayHeight / 2 - 10
-            let velocityX
-            let startAngle
-            if (touchingRight){
-                grindPositionX = this.player.x + this.player.width / 2
-                velocityX = {min : 80, max : 100}
-            } else {
-                grindPositionX = this.player.x - this.player.width / 2
-                velocityX = {min : -80, max : -100}
-            }
+            // let grindPositionX
+            // let grindPositionY = this.player.y + this.player.displayHeight / 2 - 10
+            // let velocityX
+            // let startAngle
+            // if (touchingRight){
+            //     grindPositionX = this.player.x + this.player.width / 2
+            //     velocityX = {min : 80, max : 100}
+            // } else {
+            //     grindPositionX = this.player.x - this.player.width / 2
+            //     velocityX = {min : -80, max : -100}
+            // }
 
-            const emitterGrind = this.particlesGrind.createEmitter({
-                scale: 3,
-                speedX: velocityX,
-                speedY: {
-                    min: -350,
-                    max: -550
-                },
-                maxParticles: 1
-            })
+            // const emitterGrind = this.particlesGrind.createEmitter({
+            //     scale: 3,
+            //     speedX: velocityX,
+            //     speedY: {
+            //         min: -350,
+            //         max: -550
+            //     },
+            //     maxParticles: 1
+            // })
 
-            this.particlesGrind.setDepth(emitterGrind)
+            // this.particlesGrind.setDepth(3)
             
-            emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
+            // emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
 
             // ADD TO SCORE WHILE GRINDING ON WALLS
             this.score++
@@ -346,7 +395,7 @@ export default class Game extends Phaser.Scene{
             }
 
             // switch to jump texture
-            this.player.setTexture('bunny-jump')
+            // this.player.setTexture('bunny-jump')
 
             // play jump sound
             this.sound.play('jump')
@@ -356,10 +405,10 @@ export default class Game extends Phaser.Scene{
             // console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
         }
 
-        if (!isJustDownJump && (vy < 0 && this.player.body.gravity.x < 0 || vy > 0 && this.player.body.gravity.x > 0 ) && this.player.texture.key !== 'bunny-stand'){
-            // switch back to stand when falling
-            this.player.setTexture('bunny-stand')
-        }
+        // if (!isJustDownJump && (vy < 0 && this.player.body.gravity.x < 0 || vy > 0 && this.player.body.gravity.x > 0 ) && this.player.texture.key !== 'bunny-stand'){
+        //     // switch back to stand when falling
+        //     this.player.setTexture('bunny-stand')
+        // }
 
         if (this.isGameStart) {
             this.wordlBoundKill(this.player)

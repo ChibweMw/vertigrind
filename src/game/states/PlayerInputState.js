@@ -50,13 +50,19 @@ export default class PlayerInputState {
             } else {
                 player.play('yogiJump', true)
                 if (candoubleJump){
+                    
                     if (isJustDownJump){
-                        player.toggleFlipX()
-
-                        body.gravity.x *= -1
-                        player.playerJumpForce *= -1 
-                        body.setVelocityX( -player.playerJumpForce )
-                        player.jumpCount++
+                        if (player.jumpCount < 1) {
+                            player.jumpCount++
+                            body.setVelocityX(player.playerJumpForce)
+                        } else {
+                            player.toggleFlipX()
+    
+                            body.gravity.x *= -1
+                            player.playerJumpForce *= -1 
+                            body.setVelocityX( -player.playerJumpForce )
+                            player.jumpCount++
+                        }
                         
                     } else if (isJustUpJump){
                         body.setVelocityX(0)
@@ -64,8 +70,5 @@ export default class PlayerInputState {
                 }
             }
         }
-
-            
-
     }
 }

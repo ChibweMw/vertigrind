@@ -19,7 +19,7 @@ export default class Game extends Phaser.Scene{
     platforms
     platformPool
 
-    /** @type {Phaser.Physics.Arcade.Sprite} */
+    // /** @type {Phaser.Physics.Arcade.Sprite} */
     player
     
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -45,10 +45,11 @@ export default class Game extends Phaser.Scene{
     }
 
     init(){
+        GameOptions.currentGameScore = 0
         this.score = 0
         this.jumpCount = 0
         this.sound.stopAll()
-        this.isGameStart = false
+        GameOptions.isGameStart = false
         this.cursors = this.input.keyboard.createCursorKeys()
     }
 
@@ -86,7 +87,7 @@ export default class Game extends Phaser.Scene{
 
 
         // Input
-        // this.cursors = this.input.keyboard.createCursorKeys()
+        this.cursors = this.input.keyboard.createCursorKeys()
     }
 
     create(){
@@ -144,7 +145,9 @@ export default class Game extends Phaser.Scene{
 
         this.player = new Player(this, 240, 60, 'yogi-idle')
         this.player.setControlState(playerInputState)
-        this.add.existing(this.player)
+        // this.physics.world.enable(this.player)
+        // this.add.existing(this.player)
+
 
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').setScale(3.0)
         
@@ -219,24 +222,6 @@ export default class Game extends Phaser.Scene{
         // this.timedEvent = this.time.delayedCall(1500, this.spawnPlatform(4), [], this)
         this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
 
-        if (this.isGameStart){
-
-            const touchingLeft = this.player.body.touching.left
-            const touchingRight = this.player.body.touching.right
-
-            if ( (touchingLeft || touchingRight) && this.player.body.velocity.x){
-                this.player.anims.stop('yogiJump')
-                this.player.play('yogiIdle')
-
-                console.log('LANDED LANDED LANDED')
-                
-            } else if ( (!touchingLeft || !touchingRight) && this.player.body.velocity.x){
-                this.player.anims.stop('yogiIdle')
-                this.player.play('yogiJump')
-                
-            }
-        }
-
         mainTheme.play()
         
     }
@@ -244,6 +229,13 @@ export default class Game extends Phaser.Scene{
     update(t, dt){
 
         this.player.update()
+
+        // const value = `Jewels: ${this.score}`
+        this.score = GameOptions.currentGameScore
+        const value = `Jewels: ${this.score}`
+        this.scoreText.text = value
+        // console.log(`Score >> ${value} current game score >> ${GameOptions.currentGameScore}`)
+
 
         // toggle debug view
         // const isDebugDown = Phaser.Input.Keyboard.JustDown(this.debugButton)
@@ -275,7 +267,7 @@ export default class Game extends Phaser.Scene{
             // Spawn next plaform based on distance from bottom of screen to bottom of platform
             let spawnDistance
             let platBottom    = platform.y + platform.displayHeight
-            if (this.isGameStart){
+            if (GameOptions.isGameStart){
                 spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
             } else {
                 spawnDistance = this.scale.height - (16 * 3) * 0 //- platform.displayHeight
@@ -320,65 +312,66 @@ export default class Game extends Phaser.Scene{
         const vy = this.player.body.velocity.x
         
         // Use 'SPACE' key to jump
-        const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
-        const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
+        // const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
+        // const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
 
-        let candoubleJump = this.jumpCount < GameOptions.playerJumpCount
+        // let candoubleJump = this.jumpCount < GameOptions.playerJumpCount
 
-        if (!this.isGameStart && isJustDownJump){
-            // this.isGameStart = true
-            // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
-            this.player.body.gravity.x = GameOptions.playerGravity * -1
-            }
+        // if (!GameOptions.isGameStart && isJustDownJump){
+        //     console.log(`start game? ${GameOptions.isGameStart}`)
+        //     GameOptions.isGameStart = true
+        //     // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
+        //     this.player.body.gravity.x = GameOptions.playerGravity * -1
+        // }
 
         // if (isJustUpJump && vy !== 0 && candoubleJump){
         //     this.player.setVelocityX(0)
         // }
 
         // Check Arcade Physics if player colliding below
-        const touchingLeft = this.player.body.touching.left
-        const touchingRight = this.player.body.touching.right
-        if (touchingLeft || touchingRight){
-            if (!this.isGameStart){
-                this.isGameStart = true
-            }
-            this.jumpCount = 0
+        // const touchingLeft = this.player.body.touching.left
+        // const touchingRight = this.player.body.touching.right
+        // if (touchingLeft || touchingRight){
+        //     if (!GameOptions.isGameStart){
+        //         GameOptions.isGameStart = true
+        //     }
+        //     this.jumpCount = 0
 
-            // this.player.anims.stop('yogiJump')
-            // this.player.play('yogiIdle')
+        //     // this.player.anims.stop('yogiJump')
+        //     // this.player.play('yogiIdle')
 
-            // Particle emmiter for wall sliding
-            // let grindPositionX
-            // let grindPositionY = this.player.y + this.player.displayHeight / 2 - 10
-            // let velocityX
-            // let startAngle
-            // if (touchingRight){
-            //     grindPositionX = this.player.x + this.player.width / 2
-            //     velocityX = {min : 80, max : 100}
-            // } else {
-            //     grindPositionX = this.player.x - this.player.width / 2
-            //     velocityX = {min : -80, max : -100}
-            // }
+        //     // Particle emmiter for wall sliding
+        //     // let grindPositionX
+        //     // let grindPositionY = this.player.y + this.player.displayHeight / 2 - 10
+        //     // let velocityX
+        //     // let startAngle
+        //     // if (touchingRight){
+        //     //     grindPositionX = this.player.x + this.player.width / 2
+        //     //     velocityX = {min : 80, max : 100}
+        //     // } else {
+        //     //     grindPositionX = this.player.x - this.player.width / 2
+        //     //     velocityX = {min : -80, max : -100}
+        //     // }
 
-            // const emitterGrind = this.particlesGrind.createEmitter({
-            //     scale: 3,
-            //     speedX: velocityX,
-            //     speedY: {
-            //         min: -350,
-            //         max: -550
-            //     },
-            //     maxParticles: 1
-            // })
+        //     // const emitterGrind = this.particlesGrind.createEmitter({
+        //     //     scale: 3,
+        //     //     speedX: velocityX,
+        //     //     speedY: {
+        //     //         min: -350,
+        //     //         max: -550
+        //     //     },
+        //     //     maxParticles: 1
+        //     // })
 
-            // this.particlesGrind.setDepth(3)
+        //     // this.particlesGrind.setDepth(3)
             
-            // emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
+        //     // emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
 
-            // ADD TO SCORE WHILE GRINDING ON WALLS
-            this.score++
-            const value = `Jewels: ${this.score}`
-            this.scoreText.text = value
-        }
+        //     // ADD TO SCORE WHILE GRINDING ON WALLS
+        //     this.score++
+        //     const value = `Jewels: ${this.score}`
+        //     this.scoreText.text = value
+        // }
         
         // if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
         //     // make bunny jump straight up
@@ -423,7 +416,7 @@ export default class Game extends Phaser.Scene{
         //     this.player.setTexture('bunny-stand')
         // }
 
-        if (this.isGameStart) {
+        if (GameOptions.isGameStart) {
             this.wordlBoundKill(this.player)
         }
 
@@ -524,7 +517,7 @@ export default class Game extends Phaser.Scene{
             this.scene.stop('pause')
         }
         this.scene.start('game-over', {score : this.score})
-        this.isGameStart = false
+        GameOptions.isGameStart = false
         // this.scene.transition({
         //     duration: 1000,
         //     target: 'game-over',
@@ -554,7 +547,7 @@ export default class Game extends Phaser.Scene{
         if (spawnLeft){
             x = 0
         } else {
-            if (this.isGameStart && this.score > GameOptions.levelDifficulty[0]){
+            if (GameOptions.isGameStart && this.score > GameOptions.levelDifficulty[0]){
                 x = this.scale.width - tileSize
             } else {
                 x = 0

@@ -7,5 +7,7 @@ export default gameOptions = {
     playerJumpForce: 800,
     playerJumpCount: 2,
     isDebug: false,
+    isGameStart: false,
+    currentGameScore: 0,
     levelDifficulty: [100, 200, 350, 500, 1000]
 }

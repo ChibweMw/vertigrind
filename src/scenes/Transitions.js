@@ -4,6 +4,9 @@ const MASK_MIN_SCALE = 0
 const MASK_MAX_SCALE = 2
 
 export default class SceneTransition extends Phaser.Scene {
+    constructor (key){
+        super(key)
+    }
     // mask
     
     create (){

@@ -17,14 +17,15 @@ export default class PlayerInputState {
     update(player){
         /** @type {Phaser.Physics.Arcade.Sprite} */
         const body = player.body
-
+        
         const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
         const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
         const touchingLeft = body.touching.left
         const touchingRight = body.touching.right
-
+        
         let candoubleJump = player.jumpCount < player.playerJumpCount
         
+        // console.log(`player jump count ${player.jumpCount} can double jump? ${candoubleJump}`)
         if (!GameOptions.isGameStart){
             if (isJustDownJump){
                 body.gravity.x = player.playerGravity * -1
@@ -32,10 +33,9 @@ export default class PlayerInputState {
 
             if(touchingLeft || touchingRight) {
                 GameOptions.isGameStart = true
-                console.log(`start game? ${GameOptions.isGameStart}`)
             }
         } else {
-            
+            // GAME HAS STARTED
             if(touchingLeft || touchingRight) {
 
                 GameOptions.currentGameScore++
@@ -53,7 +53,6 @@ export default class PlayerInputState {
                     
                     if (isJustDownJump){
                         if (player.jumpCount < 1) {
-                            player.jumpCount++
                             body.setVelocityX(player.playerJumpForce)
                         } else {
                             player.toggleFlipX()
@@ -61,10 +60,14 @@ export default class PlayerInputState {
                             body.gravity.x *= -1
                             player.playerJumpForce *= -1 
                             body.setVelocityX( -player.playerJumpForce )
-                            player.jumpCount++
                         }
+                        // ADD TO JUMP COUNT AND EXIT CONDITIONAL BLOCK
+                        player.jumpCount++
                         
                     } else if (isJustUpJump){
+                        // SNAPPY FALL 
+                        // body.setVelocityX(-player.playerJumpForce / 2)
+                        // FLOATY, HAS LONGJUMP
                         body.setVelocityX(0)
                     }
                 }

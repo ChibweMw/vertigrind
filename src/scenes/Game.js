@@ -38,6 +38,16 @@ export default class Game extends Phaser.Scene{
     // /** @type {Phaser.GameObjects.Particles} */
     particlesGrind
 
+    /** @type {Phaser.GameObjects.TileSprite} */
+    bg_clouds_a
+    bg_clouds_b
+    bg_clouds_c
+    bg_clouds_d
+    bg_clouds_e
+    bg_clouds_f
+    bg_clouds_a_dupe
+    bg_clouds_b_dupe
+
     // cursors
 
     constructor(){
@@ -54,10 +64,14 @@ export default class Game extends Phaser.Scene{
     }
 
     preload(){
-        this.load.image('test-bg', 'assets/sprites/Background/bg_brick.png')
+        // Load bg clouds image for parallax
+        this.load.image('bg-clouds_a', 'assets/sprites/Background/bg-clouds-1.png')
+        this.load.image('bg-clouds_b', 'assets/sprites/Background/bg-clouds-2.png')
+        this.load.image('bg-boulders', 'assets/sprites/Background/bg_Boulders-01.png')
         
         // load a platform image
-        this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png')
+        // this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png') //tile_0132.png
+        this.load.image('test-platform', 'assets/sprites/Environment/tile_0165.png') //tile_0132.png
         
         this.load.image('bunny-stand', 'assets/sprites/Player/yogi-test.png')
         
@@ -92,6 +106,69 @@ export default class Game extends Phaser.Scene{
 
     create(){
         // super.create()
+
+        // Add BG Layers
+
+        // Clouds A-00
+        this.bg_clouds_a = this.add.tileSprite(0, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
+        // this.bg_clouds_a.toggleFlipY()
+
+        this.bg_clouds_a.setOrigin(0, 0)
+        this.bg_clouds_a.setTileScale(3, 3)
+        this.bg_clouds_a.setDepth(-5)
+        this.bg_clouds_a.setTintFill(0x30303d)
+
+        // Clouds B-00
+        this.bg_clouds_b = this.add.tileSprite(this.scale.width - 48 * 2, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
+        // this.bg_clouds_b.toggleFlipY()
+
+        this.bg_clouds_b.toggleFlipX()
+        this.bg_clouds_b.setOrigin(0, 0)
+        this.bg_clouds_b.setTileScale(3, 3)
+        this.bg_clouds_b.setDepth(-5)
+        this.bg_clouds_b.setTintFill(0x30303d)
+        
+        // Clouds A-10
+        this.bg_clouds_a_dupe = this.add.tileSprite(48 / 4, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
+        this.bg_clouds_a_dupe.setOrigin(0, 0)
+        this.bg_clouds_a_dupe.setTileScale(3, 3)
+        this.bg_clouds_a_dupe.setDepth(-4)
+        this.bg_clouds_a_dupe.setTintFill(0x30303d)
+
+        // Clouds B-01
+        this.bg_clouds_b_dupe = this.add.tileSprite(this.scale.width - (48 * 2) * 1.25, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
+        this.bg_clouds_b_dupe.toggleFlipX()
+        this.bg_clouds_b_dupe.setOrigin(0, 0)
+        this.bg_clouds_b_dupe.setTileScale(3, 3)
+        this.bg_clouds_b_dupe.setDepth(-4)
+        this.bg_clouds_b_dupe.setTintFill(0x30303d)
+
+
+        // Clouds C
+        this.bg_clouds_c = this.add.tileSprite(-48 / 4, 0, 48, this.scale.height, 'bg-clouds_a')
+        this.bg_clouds_c.setOrigin(0, 0)
+        this.bg_clouds_c.setTileScale(3, 3)
+        this.bg_clouds_c.setDepth(6)
+
+        // Clouds D
+        this.bg_clouds_d = this.add.tileSprite(this.scale.width - 48 / 4, 0, 48, this.scale.height, 'bg-clouds_a')
+        this.bg_clouds_d.toggleFlipX()
+        this.bg_clouds_d.setOrigin(0, 0)
+        this.bg_clouds_d.setTileScale(3, 3)
+        this.bg_clouds_d.setDepth(6)
+
+        // Clouds E
+        this.bg_clouds_e = this.add.tileSprite(-48 / 2, 0, 48, this.scale.height, 'bg-clouds_a')
+        this.bg_clouds_e.setOrigin(0, 0)
+        this.bg_clouds_e.setTileScale(3, 3)
+        this.bg_clouds_e.setDepth(7)
+
+        // Clouds F
+        this.bg_clouds_f = this.add.tileSprite(this.scale.width - 48 / 2, 0, 48, this.scale.height, 'bg-clouds_a')
+        this.bg_clouds_f.toggleFlipX()
+        this.bg_clouds_f.setOrigin(0, 0)
+        this.bg_clouds_f.setTileScale(3, 3)
+        this.bg_clouds_f.setDepth(7)
 
         const playerInputState = new PlayerInputState(this.cursors)
         
@@ -229,6 +306,16 @@ export default class Game extends Phaser.Scene{
     update(t, dt){
 
         this.player.update()
+
+        this.bg_clouds_a.tilePositionY += 0.75
+        this.bg_clouds_b.tilePositionY += 0.75
+        this.bg_clouds_c.tilePositionY += 4
+        this.bg_clouds_d.tilePositionY += 4
+        this.bg_clouds_e.tilePositionY += 3.75
+        this.bg_clouds_f.tilePositionY += 3.75
+        this.bg_clouds_a_dupe.tilePositionY += 0.8
+        this.bg_clouds_b_dupe.tilePositionY += 0.8
+
 
         // const value = `Jewels: ${this.score}`
         this.score = GameOptions.currentGameScore
@@ -543,6 +630,9 @@ export default class Game extends Phaser.Scene{
     spawnPlatform(tileCount = Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1]), spawnLeft = Phaser.Math.RND.pick([true, false])){
         let x
         let tileSize = (16 * 3)
+        /** @type {Phaser.GameObjects.TileSprite} */
+        let myPlatform
+
         // Set horizontal spawn position
         if (spawnLeft){
             x = 0
@@ -559,8 +649,6 @@ export default class Game extends Phaser.Scene{
         let platformHeight = 16 * tileCount
         // let platformHeight = 16
 
-        /** @type {Phaser.GameObjects.TileSprite} */
-        let myPlatform
 
         if(this.platformPool.getLength()){
             myPlatform = this.platformPool.getFirst()
@@ -593,6 +681,13 @@ export default class Game extends Phaser.Scene{
         myPlatform.body.setSize(myPlatform.width, platformHeight)
         
         myPlatform.setScale(3.0)
+        // if (spawnLeft){
+        //     myPlatform.setFlipX(false)
+        // } else {
+        //     if (GameOptions.isGameStart && this.score > GameOptions.levelDifficulty[0]){
+        //         myPlatform.setFlipX(true)
+        //     }
+        // }
 
         if (this.score > GameOptions.levelDifficulty[1]) {
             // console.log(`passed 100 points. Release the Spikes!`)

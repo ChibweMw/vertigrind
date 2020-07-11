@@ -121,6 +121,37 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_a.setDepth(-5)
         this.bg_clouds_a.setTintFill(0x30303d)
 
+        this.bg_clouds_a.tilePositionY = 12
+
+        this.tweens.add({
+            targets: this.bg_clouds_a,
+            x: 12,
+            duration: 3000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        })
+
+        // Clouds A-01
+        this.bg_clouds_a_dupe = this.add.tileSprite(48 / 4, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
+        this.bg_clouds_a_dupe.setOrigin(0, 0)
+        this.bg_clouds_a_dupe.setTileScale(3, 3)
+        this.bg_clouds_a_dupe.setDepth(-4)
+        this.bg_clouds_a_dupe.setTintFill(0x30303d)
+        
+        this.bg_clouds_a_dupe.tilePositionY = 0
+        this.bg_clouds_a_dupe.toggleFlipY()
+
+        this.tweens.add({
+            targets: this.bg_clouds_a_dupe,
+            x: -12,
+            duration: 3000,
+            delay: 600,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        })
+
         // Clouds B-00
         this.bg_clouds_b = this.add.tileSprite(this.scale.width - 48 * 2, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
         // this.bg_clouds_b.toggleFlipY()
@@ -130,13 +161,17 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_b.setTileScale(3, 3)
         this.bg_clouds_b.setDepth(-5)
         this.bg_clouds_b.setTintFill(0x30303d)
-        
-        // Clouds A-10
-        this.bg_clouds_a_dupe = this.add.tileSprite(48 / 4, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
-        this.bg_clouds_a_dupe.setOrigin(0, 0)
-        this.bg_clouds_a_dupe.setTileScale(3, 3)
-        this.bg_clouds_a_dupe.setDepth(-4)
-        this.bg_clouds_a_dupe.setTintFill(0x30303d)
+        this.bg_clouds_b.tilePositionY = 24
+
+
+        this.tweens.add({
+            targets: this.bg_clouds_b,
+            x: (this.scale.width - 48 * 2) - 12,
+            duration: 3000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        })
 
         // Clouds B-01
         this.bg_clouds_b_dupe = this.add.tileSprite(this.scale.width - (48 * 2) * 1.25, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
@@ -145,6 +180,16 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_b_dupe.setTileScale(3, 3)
         this.bg_clouds_b_dupe.setDepth(-4)
         this.bg_clouds_b_dupe.setTintFill(0x30303d)
+
+        this.tweens.add({
+            targets: this.bg_clouds_b_dupe,
+            x: (this.scale.width - 48 * 2) + 12,
+            delay: 1000,
+            duration: 3000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        })
 
 
         // Clouds C
@@ -199,6 +244,8 @@ export default class Game extends Phaser.Scene{
             rotate: {min: -200, max: 200},
 
         })
+
+        
     
         // this.emit_boulders.emitParticle()
         // this.emit_boulders.flow()
@@ -346,13 +393,13 @@ export default class Game extends Phaser.Scene{
         // this.emit_boulders.emitParticle()
 
         this.bg_clouds_a.tilePositionY += 0.75
-        this.bg_clouds_b.tilePositionY += 0.75
+        this.bg_clouds_b.tilePositionY += 0.80
         this.bg_clouds_c.tilePositionY += 2
         this.bg_clouds_d.tilePositionY += 2
         this.bg_clouds_e.tilePositionY += 1.75
         this.bg_clouds_f.tilePositionY += 1.75
-        this.bg_clouds_a_dupe.tilePositionY += 0.8
-        this.bg_clouds_b_dupe.tilePositionY += 0.8
+        this.bg_clouds_a_dupe.tilePositionY -= 0.65
+        this.bg_clouds_b_dupe.tilePositionY += 0.85
 
 
         // const value = `Jewels: ${this.score}`

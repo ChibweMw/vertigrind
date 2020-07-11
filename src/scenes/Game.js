@@ -38,6 +38,8 @@ export default class Game extends Phaser.Scene{
     // /** @type {Phaser.GameObjects.Particles} */
     particlesGrind
 
+    emit_boulders
+
     /** @type {Phaser.GameObjects.TileSprite} */
     bg_clouds_a
     bg_clouds_b
@@ -67,7 +69,8 @@ export default class Game extends Phaser.Scene{
         // Load bg clouds image for parallax
         this.load.image('bg-clouds_a', 'assets/sprites/Background/bg-clouds-1.png')
         this.load.image('bg-clouds_b', 'assets/sprites/Background/bg-clouds-2.png')
-        this.load.image('bg-boulders', 'assets/sprites/Background/bg_Boulders-01.png')
+        // Load Boulder bg image
+        this.load.image('bg-boulders', 'assets/sprites/Background/bg_Boulders-02.png')
         
         // load a platform image
         // this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png') //tile_0132.png
@@ -148,27 +151,60 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_c = this.add.tileSprite(-48 / 4, 0, 48, this.scale.height, 'bg-clouds_a')
         this.bg_clouds_c.setOrigin(0, 0)
         this.bg_clouds_c.setTileScale(3, 3)
-        this.bg_clouds_c.setDepth(6)
+        this.bg_clouds_c.setDepth(-2)
 
         // Clouds D
         this.bg_clouds_d = this.add.tileSprite(this.scale.width - 48 / 4, 0, 48, this.scale.height, 'bg-clouds_a')
         this.bg_clouds_d.toggleFlipX()
         this.bg_clouds_d.setOrigin(0, 0)
         this.bg_clouds_d.setTileScale(3, 3)
-        this.bg_clouds_d.setDepth(6)
+        this.bg_clouds_d.setDepth(-2)
 
         // Clouds E
         this.bg_clouds_e = this.add.tileSprite(-48 / 2, 0, 48, this.scale.height, 'bg-clouds_a')
         this.bg_clouds_e.setOrigin(0, 0)
         this.bg_clouds_e.setTileScale(3, 3)
-        this.bg_clouds_e.setDepth(7)
+        this.bg_clouds_e.setDepth(-1)
 
         // Clouds F
         this.bg_clouds_f = this.add.tileSprite(this.scale.width - 48 / 2, 0, 48, this.scale.height, 'bg-clouds_a')
         this.bg_clouds_f.toggleFlipX()
         this.bg_clouds_f.setOrigin(0, 0)
         this.bg_clouds_f.setTileScale(3, 3)
-        this.bg_clouds_f.setDepth(7)
+        this.bg_clouds_f.setDepth(-1)
+
+        // BOULDERS
+
+        this.particlesGrind = this.add.particles('bg-boulders')
+        this.particlesGrind.setDepth(1)
+        
+        // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
+        this.emit_boulders = this.particlesGrind.createEmitter({
+            x: { min: 0, max: this.scale.width },
+            y:  this.scale.height + 50,
+            scale: { min: 1, max: 3 },
+            // speedY: {
+            //     min: -250,
+            //     max: -350
+            // },
+            accelerationY: { min: -375, max: -500 }, //-800,
+            maxParticles: 75,
+            quantity: { min: 1, max: 3 },
+            frequency: 400,
+            lifespan: 3000,
+            // emitZone: { type: 'random', source: rect1 },
+            blendMode: 'ADD',
+            on: true,
+            tint: 0x7d8397,
+            rotate: {min: -200, max: 200},
+
+        })
+    
+        // this.emit_boulders.emitParticle()
+        // this.emit_boulders.flow()
+
+        
+        /////////////////////////////////////////////////////
 
         const playerInputState = new PlayerInputState(this.cursors)
         
@@ -212,7 +248,7 @@ export default class Game extends Phaser.Scene{
         this.anims.create(config_idle)
         this.anims.create(config_jump)
 
-        this.particlesGrind = this.add.particles('particle-Grind-1')
+        // this.particlesGrind = this.add.particles('particle-Grind-1')
 
         // CREATE PLAYER SPRITE
 
@@ -307,12 +343,14 @@ export default class Game extends Phaser.Scene{
 
         this.player.update()
 
+        // this.emit_boulders.emitParticle()
+
         this.bg_clouds_a.tilePositionY += 0.75
         this.bg_clouds_b.tilePositionY += 0.75
-        this.bg_clouds_c.tilePositionY += 4
-        this.bg_clouds_d.tilePositionY += 4
-        this.bg_clouds_e.tilePositionY += 3.75
-        this.bg_clouds_f.tilePositionY += 3.75
+        this.bg_clouds_c.tilePositionY += 2
+        this.bg_clouds_d.tilePositionY += 2
+        this.bg_clouds_e.tilePositionY += 1.75
+        this.bg_clouds_f.tilePositionY += 1.75
         this.bg_clouds_a_dupe.tilePositionY += 0.8
         this.bg_clouds_b_dupe.tilePositionY += 0.8
 

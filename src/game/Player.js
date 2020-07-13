@@ -30,6 +30,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.playerJumpCount = GameOptions.playerJumpCount
 
         this.jumpCount = 0
+
+        
     }
 
     setControlState(controlState){

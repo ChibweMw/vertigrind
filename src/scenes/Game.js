@@ -37,6 +37,7 @@ export default class Game extends Phaser.Scene{
     debugButton
     // /** @type {Phaser.GameObjects.Particles} */
     particlesGrind
+    boulderParticle
 
     emit_boulders
 
@@ -74,21 +75,26 @@ export default class Game extends Phaser.Scene{
         
         // load a platform image
         // this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png') //tile_0132.png
-        this.load.image('test-platform', 'assets/sprites/Environment/tile_0165.png') //tile_0132.png
+        this.load.image('test-platform', 'assets/sprites/Environment/tile_0168.png') //tile_0132.png
         
         this.load.image('bunny-stand', 'assets/sprites/Player/yogi-test.png')
         
         this.load.image('bunny-jump', 'assets/sprites/Player/bunny_jump.png')
         
         // yogi assets
-        this.load.spritesheet('yogi-idle', 'assets/sprites/Player/anim_idle.png', { frameWidth: 14, frameHeight: 18, startFrame: 0, endFrame: 2 })
-        this.load.spritesheet('yogi-jump', 'assets/sprites/Player/anim_jump.png', { frameWidth: 10, frameHeight: 10, startFrame: 0, endFrame: 3 })
-        
+        // this.load.spritesheet('yogi-idle', 'assets/sprites/Player/anim_idle.png', { frameWidth: 14, frameHeight: 18, startFrame: 0, endFrame: 2 })
+        this.load.spritesheet('yogi-idle', 'assets/sprites/Player/anim_idle-03.png', { frameWidth: 14, frameHeight: 18, startFrame: 0, endFrame: 2 })
+        // this.load.spritesheet('yogi-jump', 'assets/sprites/Player/anim_jump.png', { frameWidth: 10, frameHeight: 10, startFrame: 0, endFrame: 3 })
+        // this.load.spritesheet('yogi-jump', 'assets/sprites/Player/anim_jump-02.png', { frameWidth: 11, frameHeight: 10, startFrame: 0, endFrame: 3 })
+        this.load.spritesheet('yogi-jump', 'assets/sprites/Player/anim_jump-05.png', { frameWidth: 11, frameHeight: 11, startFrame: 0, endFrame: 3 })
+
         // load jewel image
         this.load.image('jewel', 'assets/sprites/Items/collectible_diamond.png')
 
         // load obstacle
-        this.load.image('spike', 'assets/sprites/Environment/obstacle_spike.png')
+        // this.load.image('spike', 'assets/sprites/Environment/obstacle_spike.png')
+        // this.load.image('spike', 'assets/sprites/Environment/obstacle_spike-02.png')
+        this.load.image('spike', 'assets/sprites/Environment/obstacle_spike-11.png')
         
         // load particles
         this.load.image('particle-Grind-1', 'assets/sprites/Player/particle_grind-1.png')
@@ -119,7 +125,8 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_a.setOrigin(0, 0)
         this.bg_clouds_a.setTileScale(3, 3)
         this.bg_clouds_a.setDepth(-5)
-        this.bg_clouds_a.setTintFill(0x30303d)
+        // this.bg_clouds_a.setTintFill(0x30303d) //ea6e48
+        this.bg_clouds_a.setTintFill(0x5564a0)
 
         this.bg_clouds_a.tilePositionY = 12
 
@@ -137,8 +144,9 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_a_dupe.setOrigin(0, 0)
         this.bg_clouds_a_dupe.setTileScale(3, 3)
         this.bg_clouds_a_dupe.setDepth(-4)
-        this.bg_clouds_a_dupe.setTintFill(0x30303d)
-        
+        // this.bg_clouds_a_dupe.setTintFill(0x30303d)
+        this.bg_clouds_a_dupe.setTintFill(0x5564a0)
+       
         this.bg_clouds_a_dupe.tilePositionY = 0
         this.bg_clouds_a_dupe.toggleFlipY()
 
@@ -160,7 +168,9 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_b.setOrigin(0, 0)
         this.bg_clouds_b.setTileScale(3, 3)
         this.bg_clouds_b.setDepth(-5)
-        this.bg_clouds_b.setTintFill(0x30303d)
+        // this.bg_clouds_b.setTintFill(0x30303d)
+        this.bg_clouds_b.setTintFill(0x5564a0)
+        
         this.bg_clouds_b.tilePositionY = 24
 
 
@@ -179,7 +189,9 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_b_dupe.setOrigin(0, 0)
         this.bg_clouds_b_dupe.setTileScale(3, 3)
         this.bg_clouds_b_dupe.setDepth(-4)
-        this.bg_clouds_b_dupe.setTintFill(0x30303d)
+        // this.bg_clouds_b_dupe.setTintFill(0x30303d)
+        this.bg_clouds_b_dupe.setTintFill(0x5564a0)
+
 
         this.tweens.add({
             targets: this.bg_clouds_b_dupe,
@@ -196,12 +208,17 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_c = this.add.tileSprite(-48 / 4, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
         this.bg_clouds_c.setOrigin(0, 0)
         this.bg_clouds_c.setTileScale(3, 3)
+        // this.bg_clouds_c.setTintFill(0xea6e48) //0xf7b33d
+        this.bg_clouds_c.setTintFill(0x30303d) //0xf7b33d
+        
         // this.bg_clouds_c.setDepth(-2)
-
+        
         // Clouds E
         this.bg_clouds_e = this.add.tileSprite(-48 / 2, 0, 48 * 2, this.scale.height, 'bg-clouds_b')
         this.bg_clouds_e.setOrigin(0, 0)
         this.bg_clouds_e.setTileScale(3, 3)
+        // this.bg_clouds_e.setTintFill(0xea6e48)
+        this.bg_clouds_e.setTintFill(0x30303d)
         // this.bg_clouds_e.setDepth(-1)
 
         // Clouds D
@@ -209,6 +226,9 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_d.toggleFlipX()
         this.bg_clouds_d.setOrigin(0, 0)
         this.bg_clouds_d.setTileScale(3, 3)
+        // this.bg_clouds_d.setTintFill(0xea6e48)
+        this.bg_clouds_d.setTintFill(0x30303d) 
+
         // this.bg_clouds_d.setDepth(-2)
 
         // Clouds F
@@ -216,6 +236,10 @@ export default class Game extends Phaser.Scene{
         this.bg_clouds_f.toggleFlipX()
         this.bg_clouds_f.setOrigin(0, 0)
         this.bg_clouds_f.setTileScale(3, 3)
+        // this.bg_clouds_f.setTintFill(0xea6e48) 
+        this.bg_clouds_f.setTintFill(0x30303d) //0xede4da
+
+        
         // this.bg_clouds_f.setDepth(-1)
 
        
@@ -224,29 +248,30 @@ export default class Game extends Phaser.Scene{
 
         // BOULDERS
 
-        this.particlesGrind = this.add.particles('bg-boulders')
-        this.particlesGrind.setDepth(-1)
+        this.boulderParticle = this.add.particles('bg-boulders')
+        this.boulderParticle.setDepth(-1)
         
         // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
-        this.emit_boulders = this.particlesGrind.createEmitter({
-            x: { min: 0, max: this.scale.width },
+        this.emit_boulders = this.boulderParticle.createEmitter({
+            x: { min: this.scale.width / 4, max: this.scale.width - this.scale.width / 4 },
             y:  this.scale.height + 50,
-            scale: { min: 1, max: 3 },
-            // speedY: {
-            //     min: -250,
-            //     max: -350
-            // },
-            accelerationY: { min: -375, max: -500 }, //-800,
+            // scale: { min: 1, max: 1 },
+            speedY: {
+                min: -250,
+                max: -350
+            },
+            // accelerationY: { min: -375, max: -900 }, //-800,
             maxParticles: 75,
             quantity: { min: 1, max: 3 },
-            frequency: 400,
+            frequency: 1000,
             lifespan: 3000,
             // emitZone: { type: 'random', source: rect1 },
             blendMode: 'ADD',
             on: true,
-            tint: 0x7d8397,
+            // tint: 0x7d8397,
             rotate: {min: -200, max: 200},
-
+            tint: 0xf7b33d,
+            alpha: 0.5,
         })
 
         
@@ -258,6 +283,8 @@ export default class Game extends Phaser.Scene{
         /////////////////////////////////////////////////////
 
         const playerInputState = new PlayerInputState(this.cursors)
+
+        
         
         // console.log(`Screen height : ${this.scale.height}`)            
 
@@ -299,7 +326,7 @@ export default class Game extends Phaser.Scene{
         this.anims.create(config_idle)
         this.anims.create(config_jump)
 
-        // this.particlesGrind = this.add.particles('particle-Grind-1')
+        this.particlesGrind = this.add.particles('particle-Grind-1')
 
         // CREATE PLAYER SPRITE
 
@@ -307,6 +334,7 @@ export default class Game extends Phaser.Scene{
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
 
+        /**@type {Player} */
         this.player = new Player(this, 240, 60, 'yogi-idle')
         this.player.setControlState(playerInputState)
         // this.physics.world.enable(this.player)
@@ -317,6 +345,15 @@ export default class Game extends Phaser.Scene{
         
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
+
+        this.tweens.add({
+            targets: this.player,
+            alpha: 0,
+            duration: 325,
+            ease: 'Cubic.easeInOut',
+            yoyo: true,
+            repeat: 4,
+        })
 
         // specify directional collision checks
         // this.player.body.checkCollision.up    = false
@@ -507,49 +544,51 @@ export default class Game extends Phaser.Scene{
         // }
 
         // Check Arcade Physics if player colliding below
-        // const touchingLeft = this.player.body.touching.left
-        // const touchingRight = this.player.body.touching.right
-        // if (touchingLeft || touchingRight){
-        //     if (!GameOptions.isGameStart){
-        //         GameOptions.isGameStart = true
-        //     }
-        //     this.jumpCount = 0
+        const touchingLeft = this.player.body.touching.left
+        const touchingRight = this.player.body.touching.right
+        if (touchingLeft || touchingRight){
+            if (!GameOptions.isGameStart){
+                GameOptions.isGameStart = true
+            }
+            // this.jumpCount = 0
 
-        //     // this.player.anims.stop('yogiJump')
-        //     // this.player.play('yogiIdle')
 
-        //     // Particle emmiter for wall sliding
-        //     // let grindPositionX
-        //     // let grindPositionY = this.player.y + this.player.displayHeight / 2 - 10
-        //     // let velocityX
-        //     // let startAngle
-        //     // if (touchingRight){
-        //     //     grindPositionX = this.player.x + this.player.width / 2
-        //     //     velocityX = {min : 80, max : 100}
-        //     // } else {
-        //     //     grindPositionX = this.player.x - this.player.width / 2
-        //     //     velocityX = {min : -80, max : -100}
-        //     // }
+            // Particle emmiter for wall sliding
+            let grindPositionX
+            let grindPositionY = this.player.y + this.player.displayHeight 
+            let velocityX
+            let startAngle
+            if (touchingRight){
+                console.log(`is touching RIGHT ${touchingRight}`)
+                grindPositionX = (this.player.x + this.player.displayWidth ) 
+                velocityX = {min : 80, max : 100}
+            } else {
+                console.log(`is touching LEFT ${touchingLeft}`)
+                grindPositionX = this.player.x 
+                velocityX = {min : -80, max : -100}
+            }
 
-        //     // const emitterGrind = this.particlesGrind.createEmitter({
-        //     //     scale: 3,
-        //     //     speedX: velocityX,
-        //     //     speedY: {
-        //     //         min: -350,
-        //     //         max: -550
-        //     //     },
-        //     //     maxParticles: 1
-        //     // })
+            const emitterGrind = this.particlesGrind.createEmitter({
+                scale: 3,
+                // speedX: velocityX,
+                speedY: {
+                    min: -350,
+                    max: -550
+                },
+                maxParticles: 1,
+                tint: 0xede4da,
+                
+            })
 
-        //     // this.particlesGrind.setDepth(3)
+            this.particlesGrind.setDepth(0)
             
-        //     // emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
+            emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
 
-        //     // ADD TO SCORE WHILE GRINDING ON WALLS
-        //     this.score++
-        //     const value = `Jewels: ${this.score}`
-        //     this.scoreText.text = value
-        // }
+            // ADD TO SCORE WHILE GRINDING ON WALLS
+            // this.score++
+            // const value = `Jewels: ${this.score}`
+            // this.scoreText.text = value
+        }
         
         // if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
         //     // make bunny jump straight up
@@ -772,13 +811,13 @@ export default class Game extends Phaser.Scene{
         myPlatform.body.setSize(myPlatform.width, platformHeight)
         
         myPlatform.setScale(3.0)
-        // if (spawnLeft){
-        //     myPlatform.setFlipX(false)
-        // } else {
-        //     if (GameOptions.isGameStart && this.score > GameOptions.levelDifficulty[0]){
-        //         myPlatform.setFlipX(true)
-        //     }
-        // }
+        if (spawnLeft){
+            myPlatform.setFlipX(false)
+        } else {
+            if (GameOptions.isGameStart && this.score > GameOptions.levelDifficulty[0]){
+                myPlatform.setFlipX(true)
+            }
+        }
 
         if (this.score > GameOptions.levelDifficulty[1]) {
             // console.log(`passed 100 points. Release the Spikes!`)

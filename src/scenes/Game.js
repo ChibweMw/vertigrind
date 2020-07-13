@@ -58,11 +58,12 @@ export default class Game extends Phaser.Scene{
     }
 
     init(){
-        GameOptions.currentGameScore = 0
         this.score = 0
         this.jumpCount = 0
         this.sound.stopAll()
         GameOptions.isGameStart = false
+        GameOptions.currentGameScore = 0
+        GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
         this.cursors = this.input.keyboard.createCursorKeys()
     }
 
@@ -74,8 +75,9 @@ export default class Game extends Phaser.Scene{
         this.load.image('bg-boulders', 'assets/sprites/Background/bg_Boulders-02.png')
         
         // load a platform image
-        // this.load.image('test-platform', 'assets/sprites/Environment/ground_wavy.png') //tile_0132.png
-        this.load.image('test-platform', 'assets/sprites/Environment/tile_0168.png') //tile_0132.png
+        // this.load.image('platform-left', 'assets/sprites/Environment/ground_wavy.png') //tile_0132.png
+        this.load.image('platform-left', 'assets/sprites/Environment/tile_0168.png') //tile_0132.png
+        this.load.image('platform-right', 'assets/sprites/Environment/tile_0171.png') //tile_0132.png
         
         this.load.image('bunny-stand', 'assets/sprites/Player/yogi-test.png')
         
@@ -257,14 +259,14 @@ export default class Game extends Phaser.Scene{
             y:  this.scale.height + 50,
             // scale: { min: 1, max: 1 },
             speedY: {
-                min: -250,
-                max: -350
+                min: -650,
+                max: -1050
             },
             // accelerationY: { min: -375, max: -900 }, //-800,
             maxParticles: 75,
             quantity: { min: 1, max: 3 },
-            frequency: 1000,
-            lifespan: 3000,
+            frequency: 200,
+            lifespan: 1200,
             // emitZone: { type: 'random', source: rect1 },
             blendMode: 'ADD',
             on: true,
@@ -346,13 +348,15 @@ export default class Game extends Phaser.Scene{
         // add collision between player and tiles
         this.physics.add.collider(this.platforms, this.player)
 
-        this.tweens.add({
+        // flash player sprite
+        this.playerHitFX = this.tweens.add({
             targets: this.player,
-            alpha: 0,
-            duration: 325,
+            // alpha: 0,
+            alpha: { from: 1, to: 0 },
+            duration: 125,
             ease: 'Cubic.easeInOut',
             yoyo: true,
-            repeat: 4,
+            repeat: 8,
         })
 
         // specify directional collision checks
@@ -403,7 +407,8 @@ export default class Game extends Phaser.Scene{
         })
 
         // spike collide with player
-        this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this)
+        // this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this) //slowDown
+        this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
 
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
@@ -431,8 +436,6 @@ export default class Game extends Phaser.Scene{
 
         this.player.update()
 
-        // this.emit_boulders.emitParticle()
-
         this.bg_clouds_a.tilePositionY += 0.75
         this.bg_clouds_a_dupe.tilePositionY -= 0.65
         
@@ -451,14 +454,6 @@ export default class Game extends Phaser.Scene{
         this.scoreText.text = value
         // console.log(`Score >> ${value} current game score >> ${GameOptions.currentGameScore}`)
 
-
-        // toggle debug view
-        // const isDebugDown = Phaser.Input.Keyboard.JustDown(this.debugButton)
-        // if (isDebugDown){
-        //     GameOptions.isDebug = !GameOptions.isDebug
-        //     console.log(GameOptions.isDebug)
-        // }
-
         const isPauseDown = Phaser.Input.Keyboard.JustDown(this.pauseButton) 
         
         if (isPauseDown && !this.scene.isPaused()){
@@ -466,7 +461,12 @@ export default class Game extends Phaser.Scene{
             this.scene.pause('game')
             this.scene.launch('pause', {score : this.score})
         } 
+
+        
         // HANDLING PLATFORMS
+        // gradually increase speed y 
+        GameOptions.platformSpeedLevel[1] += 0.15
+
         /** @type {Platform} */
         this.platforms.getChildren().forEach(function(platform){
             // console.log(`PLATFORM NAME : ${platform.name}`)
@@ -474,9 +474,10 @@ export default class Game extends Phaser.Scene{
             // platform.update()
             // scroll texture vertically
             // platform.tilePositionY++
+            // console.log(`PLATFORM VELOCITY ${platform.body.velocity.y}`)
+            platform.body.velocity.y = GameOptions.platformSpeedLevel[1] * -1
             
             // if (this.score > 50 && this.score < 100){
-            //     console.log(`platform velocity ${platform.body.velocity.y}`)
             // }
             
             // Spawn next plaform based on distance from bottom of screen to bottom of platform
@@ -509,6 +510,8 @@ export default class Game extends Phaser.Scene{
         this.spikes.getChildren().forEach(function(spike){
             
             spike.update()
+            spike.body.velocity.y = GameOptions.platformSpeedLevel[1] * -1
+
 
             if(spike.y < -spike.displayHeight){
                 this.spikes.killAndHide(spike)
@@ -728,6 +731,24 @@ export default class Game extends Phaser.Scene{
         return bottomPlatform
     }
 
+    slowDown(){
+        GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
+
+        // flash player sprite
+        if (!this.playerHitFX.isPlaying()){
+
+            this.tweens.add({
+                targets: this.player,
+                alpha: { from: 1, to: 0 },//0,
+                duration: 60,
+                ease: 'Cubic.easeInOut',
+                yoyo: true,
+                repeat: 3,
+            })
+        }
+    }
+
+
     handlePlayerDeath(){
         console.log(`Game Over - End Score : ${this.score}`)
         if (this.scene.isActive('pause')){
@@ -790,11 +811,11 @@ export default class Game extends Phaser.Scene{
             this.platformPool.remove(myPlatform)
         }
         else{
-            // myPlatform = this.add.tileSprite(x, y, 16, platformHeight, 'test-platform')
+            // myPlatform = this.add.tileSprite(x, y, 16, platformHeight, 'platform-left')
             // myPlatform.setOrigin(0, 0)   
             
             myPlatform = this.platforms.get(x, y)
-            myPlatform.setTexture('test-platform')
+            myPlatform.setTexture('platform-left')
 
             // this.add.existing(spike)
             myPlatform.setActive(true)
@@ -812,10 +833,12 @@ export default class Game extends Phaser.Scene{
         
         myPlatform.setScale(3.0)
         if (spawnLeft){
-            myPlatform.setFlipX(false)
+            // myPlatform.setFlipX(false)
+            myPlatform.setTexture('platform-left')
         } else {
             if (GameOptions.isGameStart && this.score > GameOptions.levelDifficulty[0]){
-                myPlatform.setFlipX(true)
+                myPlatform.setTexture('platform-right')
+                // myPlatform.setFlipX(true)
             }
         }
 

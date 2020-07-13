@@ -21,7 +21,8 @@ export default new Phaser.Game({
         default: 'arcade',
         arcade: {
             
-            debug: false //GameOptions.isDebug
+            debug: false, //GameOptions.isDebug,
+            fps: 60,
         },
     },
     backgroundColor:   '#61b7ac' // '#4B0082' - purple '#000000' - black, '#30303d' - grey '0xede4da' - white '#61b7ac' neon blue

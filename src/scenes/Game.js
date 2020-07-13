@@ -353,10 +353,10 @@ export default class Game extends Phaser.Scene{
             targets: this.player,
             // alpha: 0,
             alpha: { from: 1, to: 0 },
-            duration: 125,
+            duration: 100,
             ease: 'Cubic.easeInOut',
             yoyo: true,
-            repeat: 8,
+            repeat: 7,
         })
 
         // specify directional collision checks
@@ -562,11 +562,11 @@ export default class Game extends Phaser.Scene{
             let velocityX
             let startAngle
             if (touchingRight){
-                console.log(`is touching RIGHT ${touchingRight}`)
+                // console.log(`is touching RIGHT ${touchingRight}`)
                 grindPositionX = (this.player.x + this.player.displayWidth ) 
                 velocityX = {min : 80, max : 100}
             } else {
-                console.log(`is touching LEFT ${touchingLeft}`)
+                // console.log(`is touching LEFT ${touchingLeft}`)
                 grindPositionX = this.player.x 
                 velocityX = {min : -80, max : -100}
             }
@@ -732,15 +732,23 @@ export default class Game extends Phaser.Scene{
     }
 
     slowDown(){
-        GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
-
+        // GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
+        
         // flash player sprite
+        console.log(`PLAYING FROM OVERLAPVILLE`)
         if (!this.playerHitFX.isPlaying()){
 
+            if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
+                GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
+                
+            } else {
+                GameOptions.platformSpeedLevel[1] = GameOptions.platformSpeedLevel[1] - 15
+            }
+            
             this.tweens.add({
                 targets: this.player,
                 alpha: { from: 1, to: 0 },//0,
-                duration: 60,
+                duration: 90,
                 ease: 'Cubic.easeInOut',
                 yoyo: true,
                 repeat: 3,

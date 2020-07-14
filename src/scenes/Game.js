@@ -356,7 +356,7 @@ export default class Game extends Phaser.Scene{
             duration: 100,
             ease: 'Cubic.easeInOut',
             yoyo: true,
-            repeat: 7,
+            repeat: 2,
         })
 
         // specify directional collision checks
@@ -465,7 +465,7 @@ export default class Game extends Phaser.Scene{
         
         // HANDLING PLATFORMS
         // gradually increase speed y 
-        GameOptions.platformSpeedLevel[1] += 0.15
+        // GameOptions.platformSpeedLevel[1] += 0.15
 
         /** @type {Platform} */
         this.platforms.getChildren().forEach(function(platform){
@@ -485,6 +485,10 @@ export default class Game extends Phaser.Scene{
             let platBottom    = platform.y + platform.displayHeight
             if (GameOptions.isGameStart){
                 spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
+
+                GameOptions.platformSpeedLevel[1] += 0.1
+                // console.log(`Is game speed++ ? ${GameOptions.isGameStart}`)
+
             } else {
                 spawnDistance = this.scale.height - (16 * 3) * 0 //- platform.displayHeight
             }
@@ -588,54 +592,7 @@ export default class Game extends Phaser.Scene{
             
             emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
 
-            // ADD TO SCORE WHILE GRINDING ON WALLS
-            // this.score++
-            // const value = `Jewels: ${this.score}`
-            // this.scoreText.text = value
         }
-        
-        // if (isJustDownJump && ((touchingLeft || touchingRight) || candoubleJump)){
-        //     // make bunny jump straight up
-
-        //     if (this.jumpCount > 0){
-        //         // double jump force
-        //         // flip gravity
-        //         if (this.player.body.gravity.x >= 0){
-        //             // this.player.body.gravity.x = -2000
-        //             this.player.body.gravity.x *= -1
-        //             this.player.setVelocityX(-GameOptions.playerJumpForce)
-        //             this.player.setFlipX(false)
-        //         } else {
-        //             // this.player.body.gravity.x = 2000
-        //             this.player.body.gravity.x *= -1
-        //             this.player.setVelocityX(GameOptions.playerJumpForce)
-        //             this.player.setFlipX(true)
-        //         }
-        //     } else {
-        //         if (this.player.body.gravity.x >= 0){
-        //             this.player.setVelocityX(-GameOptions.playerJumpForce)
-        //             // console.log('GRAVITY FLIPPED')
-        //         } else {
-        //             this.player.setVelocityX(GameOptions.playerJumpForce)
-        //         }
-                
-        //     }
-
-        //     // switch to jump texture
-        //     // this.player.setTexture('bunny-jump')
-
-        //     // play jump sound
-        //     this.sound.play('jump')
-            
-        //     this.jumpCount++
-            
-        //     // console.log(`1 CAN DOUBLE JUMP ${this.jumpCount}`)
-        // }
-
-        // if (!isJustDownJump && (vy < 0 && this.player.body.gravity.x < 0 || vy > 0 && this.player.body.gravity.x > 0 ) && this.player.texture.key !== 'bunny-stand'){
-        //     // switch back to stand when falling
-        //     this.player.setTexture('bunny-stand')
-        // }
 
         if (GameOptions.isGameStart) {
             this.wordlBoundKill(this.player)
@@ -646,21 +603,6 @@ export default class Game extends Phaser.Scene{
             this.handlePlayerDeath()
         }
     }
-
-    // /**
-    //  * @param {Phaser.GameObjects.Sprite} sprite
-    //  */
-    // horizontalWrap(sprite){
-    //     const halfWidth = sprite.displayWidth * 0.5
-    //     const gameWidth = this.scale.width
-    //     if (sprite.x < -halfWidth){
-    //         sprite.x = gameWidth + halfWidth
-    //     }
-    //     else if (sprite.x > gameWidth + halfWidth){
-    //         sprite.x = -halfWidth
-    //     }
-    // }
-
     
 
     /**
@@ -733,34 +675,43 @@ export default class Game extends Phaser.Scene{
     // }
 
     slowDown(player, spike){
-        // GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
-        
-        // spike.body.setEnable(false)
         // remove collider
         this.physics.world.removeCollider(spike) // collider
-        // spike.collider.active = false // collider
-        
 
-        
         // flash player sprite
-        if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
-            GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
+        if (!this.playerHitFX.isPlaying()){
+            this.playerHitFX.play()
             
-        } else {
-            GameOptions.platformSpeedLevel[1] = GameOptions.platformSpeedLevel[1] - 15
+            this.tweens.add({
+                targets: spike,
+                alpha: { from: 1, to: 0 },//0,
+                duration: 90,
+                ease: 'Cubic.easeInOut',
+                yoyo: true,
+                repeat: 5,
+            })
+
+            this.cameras.main.shake(90, 0.01)
+            // console.log(`is tween playing? ${this.playerHitFX.isPlaying()}`)
+            
+            console.log(`============================================`)
+            
+            if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
+                console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
+                GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
+                console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
+                
+            } else {
+                console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
+                GameOptions.platformSpeedLevel[1] -=  25
+                console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
+            }
+            
+
         }
         
-        this.tweens.add({
-            targets: this.player,
-            alpha: { from: 1, to: 0 },//0,
-            duration: 90,
-            ease: 'Cubic.easeInOut',
-            yoyo: true,
-            repeat: 3,
-        })
-        
         // this.playerObstacleCollider.active = false // collider
-        console.log(`PLAYING FROM OVERLAPVILLE`)
+        // console.log(`PLAYING FROM OVERLAPVILLE`)
         // if (!this.playerHitFX.isPlaying()){
 
         // }
@@ -768,7 +719,10 @@ export default class Game extends Phaser.Scene{
 
 
     handlePlayerDeath(){
+        console.log(`============================================`)
         console.log(`Game Over - End Score : ${this.score}`)
+        console.log(`Platform Speed : ${GameOptions.platformSpeedLevel[1]}`)
+
         if (this.scene.isActive('pause')){
             this.scene.stop('pause')
         }
@@ -870,7 +824,7 @@ export default class Game extends Phaser.Scene{
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?
-            if(Phaser.Math.Between(1, 100) <= 90 && tileCount > 3){
+            if(Phaser.Math.Between(1, 100) <= 60 && tileCount > 3){
                 // console.log(`========================`)
                 
                 /** @type {Phaser.Physics.Arcade.Sprite} */

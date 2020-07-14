@@ -408,7 +408,7 @@ export default class Game extends Phaser.Scene{
 
         // spike collide with player
         // this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this) //slowDown
-        this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
+        this.playerObstacleCollider = this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
 
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
@@ -512,6 +512,7 @@ export default class Game extends Phaser.Scene{
             spike.update()
             spike.body.velocity.y = GameOptions.platformSpeedLevel[1] * -1
 
+            // console.log(`SPIKE HAS COLLIDER?> ${spike.body.collider}`)
 
             if(spike.y < -spike.displayHeight){
                 this.spikes.killAndHide(spike)
@@ -713,47 +714,56 @@ export default class Game extends Phaser.Scene{
         console.log('Player Hit!')
     }
 
-    findBottomMostPlatform(){
-        const platforms = this.platforms.getChildren()
-        let bottomPlatform = platforms[0]
+    // findBottomMostPlatform(){
+    //     const platforms = this.platforms.getChildren()
+    //     let bottomPlatform = platforms[0]
 
-        for (let i = 1; i < platforms.length; ++i){
-            const platform = platforms[i]
+    //     for (let i = 1; i < platforms.length; ++i){
+    //         const platform = platforms[i]
 
-            // discard any platforms that are above the current
-            if (platform.y < bottomPlatform.y){
-                continue
-            }
+    //         // discard any platforms that are above the current
+    //         if (platform.y < bottomPlatform.y){
+    //             continue
+    //         }
 
-            bottomPlatform = platform
-        }
+    //         bottomPlatform = platform
+    //     }
 
-        return bottomPlatform
-    }
+    //     return bottomPlatform
+    // }
 
-    slowDown(){
+    slowDown(player, spike){
         // GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
         
-        // flash player sprite
-        console.log(`PLAYING FROM OVERLAPVILLE`)
-        if (!this.playerHitFX.isPlaying()){
+        // spike.body.setEnable(false)
+        // remove collider
+        this.physics.world.removeCollider(spike) // collider
+        // spike.collider.active = false // collider
+        
 
-            if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
-                GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
-                
-            } else {
-                GameOptions.platformSpeedLevel[1] = GameOptions.platformSpeedLevel[1] - 15
-            }
+        
+        // flash player sprite
+        if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
+            GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
             
-            this.tweens.add({
-                targets: this.player,
-                alpha: { from: 1, to: 0 },//0,
-                duration: 90,
-                ease: 'Cubic.easeInOut',
-                yoyo: true,
-                repeat: 3,
-            })
+        } else {
+            GameOptions.platformSpeedLevel[1] = GameOptions.platformSpeedLevel[1] - 15
         }
+        
+        this.tweens.add({
+            targets: this.player,
+            alpha: { from: 1, to: 0 },//0,
+            duration: 90,
+            ease: 'Cubic.easeInOut',
+            yoyo: true,
+            repeat: 3,
+        })
+        
+        // this.playerObstacleCollider.active = false // collider
+        console.log(`PLAYING FROM OVERLAPVILLE`)
+        // if (!this.playerHitFX.isPlaying()){
+
+        // }
     }
 
 
@@ -777,10 +787,16 @@ export default class Game extends Phaser.Scene{
     wordlBoundKill(sprite){
         const halfWidth = sprite.displayWidth * 0.5
         const gameWidth = this.scale.width
+
+        const halfHeight = sprite.displayHeight * 0.5
+        const gameHeight = this.scale.height
         if (sprite.x < -halfWidth){
             this.handlePlayerDeath()
-        }
-        else if (sprite.x > gameWidth + halfWidth){
+        } else if (sprite.x > gameWidth + halfWidth){
+            this.handlePlayerDeath()
+        } else if (sprite.y < -halfHeight){
+            this.handlePlayerDeath()
+        } else if (sprite.y > gameHeight + halfHeight){
             this.handlePlayerDeath()
         }
     }
@@ -854,7 +870,7 @@ export default class Game extends Phaser.Scene{
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?
-            if(Phaser.Math.Between(1, 100) <= 60 && tileCount > 3){
+            if(Phaser.Math.Between(1, 100) <= 90 && tileCount > 3){
                 // console.log(`========================`)
                 
                 /** @type {Phaser.Physics.Arcade.Sprite} */

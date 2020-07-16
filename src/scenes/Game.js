@@ -250,31 +250,31 @@ export default class Game extends Phaser.Scene{
 
         // BOULDERS
 
-        this.boulderParticle = this.add.particles('bg-boulders')
-        this.boulderParticle.setDepth(-1)
+        // this.boulderParticle = this.add.particles('bg-boulders')
+        // this.boulderParticle.setDepth(-1)
         
-        // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
-        this.emit_boulders = this.boulderParticle.createEmitter({
-            x: { min: this.scale.width / 4, max: this.scale.width - this.scale.width / 4 },
-            y:  this.scale.height + 50,
-            // scale: { min: 1, max: 1 },
-            speedY: {
-                min: -650,
-                max: -1050
-            },
-            // accelerationY: { min: -375, max: -900 }, //-800,
-            maxParticles: 75,
-            quantity: { min: 1, max: 3 },
-            frequency: 200,
-            lifespan: 1200,
-            // emitZone: { type: 'random', source: rect1 },
-            blendMode: 'ADD',
-            on: true,
-            // tint: 0x7d8397,
-            rotate: {min: -200, max: 200},
-            tint: 0xf7b33d,
-            alpha: 0.5,
-        })
+        // // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
+        // this.emit_boulders = this.boulderParticle.createEmitter({
+        //     x: { min: this.scale.width / 4, max: this.scale.width - this.scale.width / 4 },
+        //     y:  this.scale.height + 50,
+        //     // scale: { min: 1, max: 1 },
+        //     speedY: {
+        //         min: -650,
+        //         max: -1050
+        //     },
+        //     // accelerationY: { min: -375, max: -900 }, //-800,
+        //     maxParticles: 75,
+        //     quantity: { min: 1, max: 3 },
+        //     frequency: 200,
+        //     lifespan: 1200,
+        //     // emitZone: { type: 'random', source: rect1 },
+        //     blendMode: 'ADD',
+        //     on: true,
+        //     // tint: 0x7d8397,
+        //     rotate: {min: -200, max: 200},
+        //     tint: 0xf7b33d,
+        //     alpha: 0.5,
+        // })
 
         
     
@@ -405,9 +405,9 @@ export default class Game extends Phaser.Scene{
                 spike.scene.spikes.add(spike)
             }
         })
+        // this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this) //slowDown
 
         // spike collide with player
-        // this.physics.add.collider(this.player, this.spikes, this.handlePlayerDeath, undefined, this) //slowDown
         this.playerObstacleCollider = this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
 
         // restart scene
@@ -475,7 +475,8 @@ export default class Game extends Phaser.Scene{
             // scroll texture vertically
             // platform.tilePositionY++
             // console.log(`PLATFORM VELOCITY ${platform.body.velocity.y}`)
-            platform.body.velocity.y = GameOptions.platformSpeedLevel[1] * -1
+
+            // platform.body.velocity.y = GameOptions.platformStartSpeed * (-1 * dt)
             
             // if (this.score > 50 && this.score < 100){
             // }
@@ -486,11 +487,39 @@ export default class Game extends Phaser.Scene{
             if (GameOptions.isGameStart){
                 spawnDistance = this.scale.height - (16 * 3) * Phaser.Math.RND.integerInRange(GameOptions.platformSizeRange[0], GameOptions.platformSizeRange[1])
 
-                GameOptions.platformSpeedLevel[1] += 0.1
-                // console.log(`Is game speed++ ? ${GameOptions.isGameStart}`)
+                platform.body.velocity.y = GameOptions.platformSpeedLevel[1] * (-1 * dt)
+
+                // PLATFORM SPEED INCREASE And Limit
+                if (GameOptions.platformSpeedLevel[1] > GameOptions.platformMaxSpeed){
+                    GameOptions.platformSpeedLevel[1] = GameOptions.platformMaxSpeed
+                    console.log(`hit Plat Max Speed ${GameOptions.platformMaxSpeed}`)
+                } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[2]){
+
+                    console.log(`Speed Level : 1 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.000005 * dt)
+                    
+                } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[1]){
+                    
+                    console.log(`Speed Level : 2 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.00009 * dt)
+                    
+                } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[0]){
+                    
+                    console.log(`Speed Level : 3 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.0006 * dt)
+                    
+                } else {
+                    
+                    GameOptions.platformSpeedLevel[1] += (0.005 * dt)
+                    console.log(`Speed Level : 4 > ${GameOptions.platformSpeedLevel[1]}`)
+
+                } 
+
 
             } else {
                 spawnDistance = this.scale.height - (16 * 3) * 0 //- platform.displayHeight
+                platform.body.velocity.y = GameOptions.platformStartSpeed * (-1 * dt)
+
             }
             // let spawnDistance = this.scale.height - (16 * 3)
             
@@ -514,7 +543,7 @@ export default class Game extends Phaser.Scene{
         this.spikes.getChildren().forEach(function(spike){
             
             spike.update()
-            spike.body.velocity.y = GameOptions.platformSpeedLevel[1] * -1
+            spike.body.velocity.y =  GameOptions.platformSpeedLevel[1] * (-1 * dt)
 
             // console.log(`SPIKE HAS COLLIDER?> ${spike.body.collider}`)
 
@@ -532,24 +561,6 @@ export default class Game extends Phaser.Scene{
 
         // console.log(`Platfrom Pool First Free Platform : ${this.platformPool.getFirst()}`)
 
-        const vy = this.player.body.velocity.x
-        
-        // Use 'SPACE' key to jump
-        // const isJustDownJump = Phaser.Input.Keyboard.JustDown(this.cursors.space) 
-        // const isJustUpJump = Phaser.Input.Keyboard.JustUp(this.cursors.space) 
-
-        // let candoubleJump = this.jumpCount < GameOptions.playerJumpCount
-
-        // if (!GameOptions.isGameStart && isJustDownJump){
-        //     console.log(`start game? ${GameOptions.isGameStart}`)
-        //     GameOptions.isGameStart = true
-        //     // console.log(`this.platforms.getFirst.x : ${this.platforms.getFirst.x}`)
-        //     this.player.body.gravity.x = GameOptions.playerGravity * -1
-        // }
-
-        // if (isJustUpJump && vy !== 0 && candoubleJump){
-        //     this.player.setVelocityX(0)
-        // }
 
         // Check Arcade Physics if player colliding below
         const touchingLeft = this.player.body.touching.left
@@ -558,39 +569,7 @@ export default class Game extends Phaser.Scene{
             if (!GameOptions.isGameStart){
                 GameOptions.isGameStart = true
             }
-            // this.jumpCount = 0
-
-
-            // Particle emmiter for wall sliding
-            let grindPositionX
-            let grindPositionY = this.player.y + this.player.displayHeight 
-            let velocityX
-            let startAngle
-            if (touchingRight){
-                // console.log(`is touching RIGHT ${touchingRight}`)
-                grindPositionX = (this.player.x + this.player.displayWidth ) 
-                velocityX = {min : 80, max : 100}
-            } else {
-                // console.log(`is touching LEFT ${touchingLeft}`)
-                grindPositionX = this.player.x 
-                velocityX = {min : -80, max : -100}
-            }
-
-            const emitterGrind = this.particlesGrind.createEmitter({
-                scale: 3,
-                // speedX: velocityX,
-                speedY: {
-                    min: -350,
-                    max: -550
-                },
-                maxParticles: 1,
-                tint: 0xede4da,
-                
-            })
-
-            this.particlesGrind.setDepth(0)
-            
-            emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
+            this.grindParticles(touchingRight)
 
         }
 
@@ -602,6 +581,39 @@ export default class Game extends Phaser.Scene{
         if (this.player.x > this.scale.width || this.player.x < -this.player.displayWidth){
             this.handlePlayerDeath()
         }
+    }
+
+    grindParticles(touchDir) {
+        // Particle emmiter for wall sliding
+        let grindPositionX
+        let grindPositionY = this.player.y + this.player.displayHeight 
+        let velocityX
+        let startAngle
+        if (touchDir){
+            // console.log(`is touching RIGHT ${touchingRight}`)
+            grindPositionX = (this.player.x + this.player.displayWidth ) 
+            velocityX = {min : 80, max : 100}
+        } else {
+            // console.log(`is touching LEFT ${touchingLeft}`)
+            grindPositionX = this.player.x 
+            velocityX = {min : -80, max : -100}
+        }
+
+        const emitterGrind = this.particlesGrind.createEmitter({
+            scale: 3,
+            // speedX: velocityX,
+            speedY: {
+                min: -350,
+                max: -550
+            },
+            maxParticles: 1,
+            tint: 0xede4da,
+            
+        })
+
+        this.particlesGrind.setDepth(0)
+        
+        emitterGrind.emitParticleAt(grindPositionX, grindPositionY)
     }
     
 
@@ -672,20 +684,22 @@ export default class Game extends Phaser.Scene{
     //     }
 
     //     return bottomPlatform
+    slowDown(player, spike){
     // }
 
-    slowDown(player, spike){
         // remove collider
         this.physics.world.removeCollider(spike) // collider
-
+        
         // flash player sprite
         if (!this.playerHitFX.isPlaying()){
+            console.log(`============================================`)
+            console.log(`SPIKE : ${Object.keys(spike)}`)
             this.playerHitFX.play()
             
             this.tweens.add({
                 targets: spike,
                 alpha: { from: 1, to: 0 },//0,
-                duration: 90,
+                duration: 100,
                 ease: 'Cubic.easeInOut',
                 yoyo: true,
                 repeat: 5,
@@ -693,28 +707,22 @@ export default class Game extends Phaser.Scene{
 
             this.cameras.main.shake(90, 0.01)
             // console.log(`is tween playing? ${this.playerHitFX.isPlaying()}`)
+            GameOptions.platformSpeedLevel[1] -=  5
             
-            console.log(`============================================`)
             
-            if (GameOptions.platformSpeedLevel[1] < GameOptions.platformStartSpeed - 180) {
-                console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
-                GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed - 180
-                console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
+            // if (GameOptions.platformSpeedLevel[1] < 0) {
+            //     // console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
+            //     GameOptions.platformSpeedLevel[1] = 0
+            //     // console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
                 
-            } else {
-                console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
-                GameOptions.platformSpeedLevel[1] -=  25
-                console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
-            }
+            // } else {
+            //     // console.log(`Platform Speed Before : ${GameOptions.platformSpeedLevel[1]}`)
+            //     // GameOptions.platformSpeedLevel[1] -=  5
+            //     // console.log(`Platform Speed After : ${GameOptions.platformSpeedLevel[1]}`)
+            // }
             
 
         }
-        
-        // this.playerObstacleCollider.active = false // collider
-        // console.log(`PLAYING FROM OVERLAPVILLE`)
-        // if (!this.playerHitFX.isPlaying()){
-
-        // }
     }
 
 
@@ -846,7 +854,7 @@ export default class Game extends Phaser.Scene{
                     spikeHitBoxOffsetx = 12
                 }
                 
-                if(this.spikePool.getLength()){
+                if(this.spikePool.getLength() > 7){
                     spike = this.spikePool.getFirst()
                     spike.x = spikeX 
                     spike.y = spikePosY

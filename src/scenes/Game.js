@@ -388,6 +388,8 @@ export default class Game extends Phaser.Scene{
             undefined,
             this
         )
+
+        // SCORE TEXT
         this.scoreText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels : 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
         
         // start adding colliders to spikes
@@ -412,6 +414,9 @@ export default class Game extends Phaser.Scene{
 
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
+            if (this.scene.isActive('pause')){
+                this.scene.stop('pause')
+            }
             this.scene.restart('game')
         })
 

@@ -5,7 +5,7 @@ export default class Menu extends Phaser.Scene{
 // export default class Menu extends SceneTransition{
 
     menuItemPos = 0
-    menuItems = ['game', 'options', 'credits']
+    menuItems = ['game', 'credits']
     /** @type {Phaser.GameObjects.Text} */   
     menuText
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -23,6 +23,7 @@ export default class Menu extends Phaser.Scene{
     preload(){
         this.cursors = this.input.keyboard.createCursorKeys()
         this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+        this.load.image('logo', 'assets/sprites/Branding/Logo.png')
     }
 
     create(){
@@ -34,7 +35,10 @@ export default class Menu extends Phaser.Scene{
         const style = { color: '#fff', fontSize: 24}
         // this.add.text(width * 0.5, height * 0.1, 'Main Menu', style).setOrigin(0.5)
         
-        this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'VertiGrind', 64).setOrigin(0.5)
+        // this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'VertiGrind', 64).setOrigin(0.5)
+
+        const gameLogo = this.add.image(width / 2, height * 0.05, 'logo',).setScale(2).setOrigin(0.5, 0)
+        
 
         // this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', `${this.menuItems[this.menuItemPos]}`, 24).setOrigin(0.5)
         this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks')
@@ -46,16 +50,21 @@ export default class Menu extends Phaser.Scene{
 
         console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
         
-        this.input.keyboard.once('keydown_ENTER', () => {
-            this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
-            // this.scene.transition({
-            //     duration: 2500,
-            //     target: `${this.menuItems[this.menuItemPos].replace('> ', '')}`
-            // })
-        })
+        // this.input.keyboard.once('keydown_ENTER', () => {
+        //     this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
+        //     // this.scene.transition({
+        //     //     duration: 2500,
+        //     //     target: `${this.menuItems[this.menuItemPos].replace('> ', '')}`
+        //     // })
+        // })
     }
 
     update(){
+        const isJustDown_Space = Phaser.Input.Keyboard.JustDown(this.cursors.space)
+
+        if (isJustDown_Space){
+            this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
+        }
         const isJustDown_Up = Phaser.Input.Keyboard.JustDown(this.cursors.up)
         const isJustDown_Down = Phaser.Input.Keyboard.JustDown(this.cursors.down)
 

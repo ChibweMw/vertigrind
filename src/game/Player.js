@@ -17,7 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this)
         scene.physics.world.enable(this)
 
-        this.play('yogiIdle', true)
+        this.play('yogiJump', true)
 
         this.setScale(3.0)
         this.setOrigin(0, 0)

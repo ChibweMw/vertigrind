@@ -10,6 +10,8 @@ import PlayerInputState from '../game/states/PlayerInputState.js'
 import Platform from '../game/Platform.js'
 import GameOptions from '../GameOptions.js'
 
+import PlayerShadow from '../game/shadowParticle.js'
+
 export default class Game extends Phaser.Scene{
 // export default class Game extends SceneTransition{
 
@@ -50,6 +52,11 @@ export default class Game extends Phaser.Scene{
     bg_clouds_f
     bg_clouds_a_dupe
     bg_clouds_b_dupe
+
+    /** @type {Phaser.GameObjects.Particles.Particle} */
+    shadowFX
+
+    flippingGrav = false
 
     // cursors
 
@@ -412,6 +419,30 @@ export default class Game extends Phaser.Scene{
         // spike collide with player
         this.playerObstacleCollider = this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
 
+        this.shadowFX = this.add.particles('yogi-jump')
+
+        this.shadowEmitter = this.shadowFX.createEmitter({
+            // x: this.player.x ,
+            // y: 1,
+            // scale: {start: 3, end: 0},
+            scale: 3,
+            alpha: {start: 1, end: 0},
+            tint: 0xffffff,
+            // tint: 0x61b7ac,
+            frame: this.player.anims.currentFrame.index,
+            quantity: 1,
+            frequency: 70,
+            speedY: -100,
+            lifespan: 250,
+            particleClass: PlayerShadow,
+            blendMode: 'ADD',
+            rotate: {min: -500, max: -500},
+        })
+
+        this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
+        // // this.shadowEmitter.startFollow(this.player, this.player.width, this.player.height )
+
+
         // restart scene
         this.input.keyboard.once('keydown_R', () => {
             if (this.scene.isActive('pause')){
@@ -438,6 +469,8 @@ export default class Game extends Phaser.Scene{
     }
 
     update(t, dt){
+
+        
 
         this.player.update()
 
@@ -497,26 +530,26 @@ export default class Game extends Phaser.Scene{
                 // PLATFORM SPEED INCREASE And Limit
                 if (GameOptions.platformSpeedLevel[1] > GameOptions.platformMaxSpeed){
                     GameOptions.platformSpeedLevel[1] = GameOptions.platformMaxSpeed
-                    console.log(`hit Plat Max Speed ${GameOptions.platformMaxSpeed}`)
+                    // console.log(`hit Plat Max Speed ${GameOptions.platformMaxSpeed}`)
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[2]){
 
-                    console.log(`Speed Level : 1 > ${GameOptions.platformSpeedLevel[1]}`)
+                    // console.log(`Speed Level : 1 > ${GameOptions.platformSpeedLevel[1]}`)
                     GameOptions.platformSpeedLevel[1] += (0.000005 * dt)
                     
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[1]){
                     
-                    console.log(`Speed Level : 2 > ${GameOptions.platformSpeedLevel[1]}`)
+                    // console.log(`Speed Level : 2 > ${GameOptions.platformSpeedLevel[1]}`)
                     GameOptions.platformSpeedLevel[1] += (0.00009 * dt)
                     
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[0]){
                     
-                    console.log(`Speed Level : 3 > ${GameOptions.platformSpeedLevel[1]}`)
+                    // console.log(`Speed Level : 3 > ${GameOptions.platformSpeedLevel[1]}`)
                     GameOptions.platformSpeedLevel[1] += (0.0006 * dt)
                     
                 } else {
                     
                     GameOptions.platformSpeedLevel[1] += (0.005 * dt)
-                    console.log(`Speed Level : 4 > ${GameOptions.platformSpeedLevel[1]}`)
+                    // console.log(`Speed Level : 4 > ${GameOptions.platformSpeedLevel[1]}`)
 
                 } 
 
@@ -575,7 +608,17 @@ export default class Game extends Phaser.Scene{
                 GameOptions.isGameStart = true
             }
             this.grindParticles(touchingRight)
-
+            if (!this.player.flippingGrav){
+                this.shadowEmitter.stop()
+                this.player.flippingGrav = true
+            }
+        } else {
+            if (this.player.jumpCount >= 1 && this.player.flippingGrav){
+                this.shadowEmitter.start()
+                this.player.flippingGrav = false
+                // this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
+                
+            }
         }
 
         if (GameOptions.isGameStart) {
@@ -587,6 +630,8 @@ export default class Game extends Phaser.Scene{
             this.handlePlayerDeath()
         }
     }
+
+    
 
     grindParticles(touchDir) {
         // Particle emmiter for wall sliding

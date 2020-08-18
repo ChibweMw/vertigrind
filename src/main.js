@@ -9,6 +9,7 @@ import Credits from './scenes/Credits.js'
 import Pause from './scenes/Pause.js'
 import Transition from './scenes/Transitions.js'
 import Options from './scenes/Options.js'
+import Preload from './scenes/Preload.js'
 
 
 export default new Phaser.Game({
@@ -16,7 +17,7 @@ export default new Phaser.Game({
     width: 480,
     height: 640,
     pixelArt: true,
-    scene: [Menu, Game, GameOver, Credits, Pause, Transition, Options],
+    scene: [Preload, Menu, Game, GameOver, Credits, Pause, Transition, Options],
     physics: {
         default: 'arcade',
         arcade: {

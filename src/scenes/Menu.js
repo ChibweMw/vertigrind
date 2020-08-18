@@ -22,8 +22,6 @@ export default class Menu extends Phaser.Scene{
 
     preload(){
         this.cursors = this.input.keyboard.createCursorKeys()
-        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
-        this.load.image('logo', 'assets/sprites/Branding/Logo.png')
     }
 
     create(){

@@ -12,10 +12,6 @@ export default class GameOver extends Phaser.Scene{
         this.currentScore = data.score
     }
 
-    preload(){
-        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
-    }
-
     create(){
         // super.create()
         // use ScaleManager to get with and height of game
@@ -36,7 +32,7 @@ export default class GameOver extends Phaser.Scene{
         
         // console.log('Game Over')
         this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Game Over', 64).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore}ft`, 22).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore} ft`, 22).setOrigin(0.5)
         this.add.bitmapText(10, 10, 'classified', "'Q' for Main Menu", 16).setOrigin(0, 0)
         this.add.bitmapText(10, 10 + 18, 'classified', "'SPACE' to retry", 16).setOrigin(0, 0)
         

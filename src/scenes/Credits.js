@@ -10,7 +10,7 @@ export default class Credits extends Phaser.Scene{
     }
 
     preload(){
-        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+        // this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
     }
 
     create(){
@@ -19,10 +19,10 @@ export default class Credits extends Phaser.Scene{
         const height = this.scale.height
         console.log('Credits Scene')
         // const style = { color: '#fff', fontSize: 24}
-        this.add.bitmapText(width * 0.5, height * 0.25, 'babyblocks', 'Credits', 32).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 2, 'babyblocks', 'Created by @luckydothraki', 16).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 3, 'babyblocks', 'Font by @ChevyRay', 16).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 4, 'babyblocks', 'Music & Audio by [insert name]', 16).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Credits', 32).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 2, 'classified', 'Created by @luckydothraki', 16).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 3, 'classified', 'Font by @ChevyRay', 16).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 4, 'classified', 'Music & Audio by [insert name]', 16).setOrigin(0.5)
 
         this.input.keyboard.once('keydown_ENTER', () => {
             this.scene.start('menu')

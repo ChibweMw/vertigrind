@@ -65,8 +65,8 @@ export default class PreLoad extends Phaser.Scene {
 		this.newGraphics.fillStyle(0x3587e2, 1)
 		this.newGraphics.fillRectShape(progressBarFill)
         
-		this.loadingText = this.add.text(this.scale.width / 2, this.scale.height / 2,"Loading: ", { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5)
-        // this.loadingText = this.add.bitmapText(this.scale.width / 2, this.scale.height / 2, 'classified', 'Loading', 64).setOrigin(0.5)
+		// this.loadingText = this.add.text(this.scale.width / 2, this.scale.height / 2,"Loading: ", { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5)
+        this.loadingText = this.add.bitmapText(this.scale.width / 2, this.scale.height / 2, 'classified', 'Loading', 32).setOrigin(0.5)
 
 
 		this.load.on('progress', this.updateBar, this)
@@ -85,12 +85,12 @@ export default class PreLoad extends Phaser.Scene {
                 
         percentage = percentage * 100
         // this.loadingText.setText("Loading: " + percentage.toFixed(2) + "%")
-        this.loadingText.setText(`Loading: ${percentage.toFixed(2)}%`)
+        this.loadingText.setText(`Loading: ${percentage.toFixed(0)}%`)
         console.log("P:" + percentage)
     }
 
     complete () {
         console.log(`COMPLETE!`)
-        this.scene.start('menu')
+        // this.scene.start('menu')
     }
 }

@@ -51,8 +51,42 @@ export default class PreLoad extends Phaser.Scene {
 
         this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
 
-        this.load.on('complete', this.complete, this)
+        this.graphics = this.add.graphics()
+		this.newGraphics = this.add.graphics()
+        let progressBar = new Phaser.Geom.Rectangle(this.scale.width / 2, this.scale.height / 2, 400, 50)
+        progressBar.centerX = this.scale.width / 2
+        progressBar.centerY = this.scale.height / 2
+		let progressBarFill = new Phaser.Geom.Rectangle(this.scale.width / 2, this.scale.height / 2, 290, 40)
+        progressBarFill.centerX = this.scale.width / 2, this.scale.height / 2
+        
+		this.graphics.fillStyle(0xffffff, 1)
+		this.graphics.fillRectShape(progressBar)
+        
+		this.newGraphics.fillStyle(0x3587e2, 1)
+		this.newGraphics.fillRectShape(progressBarFill)
+        
+		this.loadingText = this.add.text(this.scale.width / 2, this.scale.height / 2,"Loading: ", { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5)
+        // this.loadingText = this.add.bitmapText(this.scale.width / 2, this.scale.height / 2, 'classified', 'Loading', 64).setOrigin(0.5)
 
+
+		this.load.on('progress', this.updateBar, this)
+        this.load.on('complete', this.complete, this)
+        
+    }
+
+    updateBar(percentage){
+        this.newGraphics.clear()
+        this.newGraphics.fillStyle(0x3587e2, 1)
+        let progressBarFill = new Phaser.Geom.Rectangle(this.scale.width / 2, this.scale.height / 2, percentage*390, 40)
+        progressBarFill.centerX = this.scale.width / 2
+        progressBarFill.centerY = this.scale.height / 2
+        this.newGraphics.fillRectShape(progressBarFill)
+        // this.newGraphics.fillRectShape(new Phaser.Geom.Rectangle(this.scale.width / 2, this.scale.height / 2, percentage*390, 40))
+                
+        percentage = percentage * 100
+        // this.loadingText.setText("Loading: " + percentage.toFixed(2) + "%")
+        this.loadingText.setText(`Loading: ${percentage.toFixed(2)}%`)
+        console.log("P:" + percentage)
     }
 
     complete () {

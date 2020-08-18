@@ -449,6 +449,10 @@ export default class Game extends Phaser.Scene{
             if (this.scene.isActive('pause')){
                 this.scene.stop('pause')
             }
+
+            if (this.scene.isActive('game-over')){
+                this.scene.stop('game-over')
+            }
             this.scene.restart('game')
         })
 
@@ -785,7 +789,7 @@ export default class Game extends Phaser.Scene{
         if (this.scene.isActive('pause')){
             this.scene.stop('pause')
         }
-        this.scene.start('game-over', {score : this.score})
+        this.scene.launch('game-over', {score : this.score})
         GameOptions.isGameStart = false
         // this.scene.transition({
         //     duration: 1000,

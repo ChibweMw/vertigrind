@@ -12,6 +12,7 @@ export default gameOptions = {
     isDebug: false,
     isGameStart: false,
     isGameEnd: false,
+    inGameScene: false,
     currentGameScore: 0,
     levelDifficulty: [75, 300, 750]
 }

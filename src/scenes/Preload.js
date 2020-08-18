@@ -91,6 +91,6 @@ export default class PreLoad extends Phaser.Scene {
 
     complete () {
         console.log(`COMPLETE!`)
-        // this.scene.start('menu')
+        this.scene.start('menu')
     }
 }

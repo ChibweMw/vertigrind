@@ -1,4 +1,6 @@
 import Phaser from '../lib/phaser.js'
+import GameOptions from '../GameOptions.js'
+
 
 export default class GameOver extends Phaser.Scene{
 
@@ -32,7 +34,7 @@ export default class GameOver extends Phaser.Scene{
         
         // console.log('Game Over')
         this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Game Over', 64).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore} ft`, 22).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore} ft`, 16).setOrigin(0.5)
         this.add.bitmapText(10, 10, 'classified', "'Q' for Main Menu", 16).setOrigin(0, 0)
         this.add.bitmapText(10, 10 + 18, 'classified', "'SPACE' to retry", 16).setOrigin(0, 0)
         
@@ -42,12 +44,9 @@ export default class GameOver extends Phaser.Scene{
         })
 
         this.input.keyboard.once('keydown_SPACE', () => {
+            GameOptions.inGameScene = true
             this.scene.start('game')
-            // this.scene.start('game')
-            // this.scene.transition({
-            //     duration: 2500,
-            //     target: 'game'
-            // })
+            // this.scene.get('game').spawnPlatform()
         })
     }
 }

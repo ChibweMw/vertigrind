@@ -24,7 +24,7 @@ export default class Credits extends Phaser.Scene{
         this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 3, 'classified', 'Font by @ChevyRay', 16).setOrigin(0.5)
         this.add.bitmapText(width * 0.5, height * 0.25 + 34 * 4, 'classified', 'Music & Audio by [insert name]', 16).setOrigin(0.5)
 
-        this.input.keyboard.once('keydown_ENTER', () => {
+        this.input.keyboard.once('keydown_SPACE', () => {
             this.scene.start('menu')
         })
     }

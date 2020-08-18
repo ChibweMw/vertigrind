@@ -302,7 +302,7 @@ export default class Game extends Phaser.Scene{
         // this.player = this.physics.add.sprite(240, 60, 'yogi-idle').play('yogiIdle').setScale(3.0)
 
         /**@type {Player} */
-        this.player = new Player(this, 240, 60, 'yogi-idle')
+        this.player = new Player(this, this.scale.width / 2, 60, 'yogi-idle')
         this.player.setControlState(playerInputState)
         // this.physics.world.enable(this.player)
         // this.add.existing(this.player)
@@ -355,8 +355,9 @@ export default class Game extends Phaser.Scene{
         )
 
         // SCORE TEXT
-        this.scoreText = this.add.bitmapText(240, 10, 'classified', 'Jewels : 0', 32).setScrollFactor(0).setOrigin(0.5, 0)
-        
+        // this.scoreText = this.add.bitmapText(240, this.scale.height - 42, 'classified', 'Jewels : 0', 32).setScrollFactor(0).setOrigin(0.5, 0)
+        this.scoreText = this.add.bitmapText(this.scale.width / 2, this.scale.height / 2, 'classified', '', 64).setScrollFactor(0).setOrigin(0.5)
+        this.scoreText.setTintFill(0x61c7ac)
         // start adding colliders to spikes
 
         this.spikes = this.physics.add.group({
@@ -410,7 +411,9 @@ export default class Game extends Phaser.Scene{
             if (this.scene.isActive('game-over')){
                 this.scene.stop('game-over')
             }
-            this.scene.restart('game')
+            if (!this.scene.isActive('menu')){
+                this.scene.restart('game')
+            }
         })
 
         this.pauseButton = this.input.keyboard.addKey('P')
@@ -424,7 +427,7 @@ export default class Game extends Phaser.Scene{
         })
 
         // this.timedEvent = this.time.delayedCall(1500, this.spawnPlatform(4), [], this)
-        this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
+        // this.timedEvent = this.time.addEvent({ delay: 700, callback: this.spawnPlatform, args: [], callbackScope: this})
 
         mainTheme.play()
         
@@ -432,31 +435,44 @@ export default class Game extends Phaser.Scene{
 
     update(t, dt){
 
+        if (GameOptions.inGameScene){
+            this.spawnPlatform()
+            GameOptions.inGameScene = !GameOptions.inGameScene
+        }
         
-
-        this.player.update()
-
         this.bg_clouds_a.tilePositionY += 0.75
         this.bg_clouds_a_dupe.tilePositionY -= 0.65
         
         this.bg_clouds_b.tilePositionY += 0.80
         this.bg_clouds_b_dupe.tilePositionY += 0.85
-
+        
         this.bg_clouds_c.tilePositionY += 2
         this.bg_clouds_d.tilePositionY += 2
         this.bg_clouds_e.tilePositionY += 1.75
         this.bg_clouds_f.tilePositionY += 1.75
-
-
+        
+        
         // const value = `Jewels: ${this.score}`
-        this.score = GameOptions.currentGameScore
-        const value = `${this.score} ft`
-        this.scoreText.text = value
+        if (GameOptions.isGameStart){
+            this.score = GameOptions.currentGameScore
+            const value = `${this.score} ft`
+            this.scoreText.text = value
+        }
+        if (this.scene.isActive('menu')){
+            this.player.setVisible(false)
+            
+            this.shadowEmitter.setVisible(false)
+        } else {
+            this.player.update()
+            this.player.setVisible(true)
+            
+            this.shadowEmitter.setVisible(true)
+        }
         // console.log(`Score >> ${value} current game score >> ${GameOptions.currentGameScore}`)
 
         const isPauseDown = Phaser.Input.Keyboard.JustDown(this.pauseButton) 
         
-        if (isPauseDown && !this.scene.isPaused() && !this.scene.isActive('game-over')){
+        if (!this.scene.isActive('menu') && isPauseDown && !this.scene.isPaused() && !this.scene.isActive('game-over')){
             this.scene.pause('game')
             this.scene.launch('pause', {score : this.score})
         } 

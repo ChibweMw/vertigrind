@@ -1,11 +1,13 @@
 import Phaser from '../lib/phaser.js'
+import GameOptions from '../GameOptions.js'
+
 // import SceneTransition from './Transitions.js'
 
 export default class Menu extends Phaser.Scene{
 // export default class Menu extends SceneTransition{
 
     menuItemPos = 0
-    menuItems = ['game', 'credits']
+    menuItems = ['game']
     /** @type {Phaser.GameObjects.Text} */   
     menuText
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
@@ -18,6 +20,7 @@ export default class Menu extends Phaser.Scene{
     init(){
         this.sound.stopAll()
         this.menuItemPos = 0
+        GameOptions.inGameScene = false
     }
 
     preload(){
@@ -44,57 +47,32 @@ export default class Menu extends Phaser.Scene{
         this.menuText.setMaxWidth(200)
         this.menuText.setOrigin(0.5)
         this.menuText.setFontSize(32)
-        this.menuText.setText(this.menuItems)
+        this.menuText.setText(`Press SPACE`)
+
+        this.tweens.add({
+            targets: this.menuText,
+            alpha: { from: 1, to: 0.1 },
+            duration: 470,
+            ease: 'Cubic.easeInOut',
+            yoyo: true,
+            repeat: -1,
+        })
 
         console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
+        this.scene.launch('game')
+        this.scene.moveDown('game')
+
         
-        // this.input.keyboard.once('keydown_ENTER', () => {
-        //     this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
-        //     // this.scene.transition({
-        //     //     duration: 2500,
-        //     //     target: `${this.menuItems[this.menuItemPos].replace('> ', '')}`
-        //     // })
-        // })
     }
 
     update(){
-        const isJustDown_Space = Phaser.Input.Keyboard.JustDown(this.cursors.space)
+        const isJustDown_Space = Phaser.Input.Keyboard.JustUp(this.cursors.space)
 
         if (isJustDown_Space){
-            this.scene.start(`${this.menuItems[this.menuItemPos].replace('> ', '')}`)
+            // this.scene.get('game').spawnPlatform()
+            GameOptions.inGameScene = true
+            this.scene.stop()
         }
-        const isJustDown_Up = Phaser.Input.Keyboard.JustDown(this.cursors.up)
-        const isJustDown_Down = Phaser.Input.Keyboard.JustDown(this.cursors.down)
-
-        if (isJustDown_Down){
-            if (this.menuItemPos >= this.menuItems.length - 1){
-                this.menuItemPos = 0
-            }else {
-                this.menuItemPos++
-            }
-            console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
-
-        } else if (isJustDown_Up){
-            if (this.menuItemPos <= 0){
-                this.menuItemPos = this.menuItems.length - 1
-            } else {
-                this.menuItemPos--
-            }    
-            console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)
-        
-        }
-        // display items
-        this.menuItems.forEach((menutextItem, index) => {
-            if (menutextItem == this.menuItems[this.menuItemPos] && menutextItem[0] !== '>'){
-                this.menuItems[this.menuItemPos] = `> ` + menutextItem
-            } else if (menutextItem !== this.menuItems[this.menuItemPos] && menutextItem[0] == '>'){
-                console.log(`remove arrow at index : ${index} for word : ${this.menuItems[index].replace('> ', '')}`)
-                this.menuItems[index] = menutextItem.replace('> ', '')
-            }
-        }) 
-        
-        this.menuText.text = this.menuItems
-
     }
 
     

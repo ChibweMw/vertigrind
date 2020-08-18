@@ -115,7 +115,7 @@ export default class Game extends Phaser.Scene{
 
         this.load.audio('main-theme', 'assets/music/Pixel-War-1.wav')
 
-        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
 
 
         // Input
@@ -398,7 +398,7 @@ export default class Game extends Phaser.Scene{
         )
 
         // SCORE TEXT
-        this.scoreText = this.add.bitmapText(240, 10, 'babyblocks', 'Jewels : 0', 24).setScrollFactor(0).setOrigin(0.5, 0)
+        this.scoreText = this.add.bitmapText(240, 10, 'classified', 'Jewels : 0', 32).setScrollFactor(0).setOrigin(0.5, 0)
         
         // start adding colliders to spikes
 
@@ -493,14 +493,13 @@ export default class Game extends Phaser.Scene{
 
         // const value = `Jewels: ${this.score}`
         this.score = GameOptions.currentGameScore
-        const value = `Jewels: ${this.score}`
+        const value = `${this.score}ft`
         this.scoreText.text = value
         // console.log(`Score >> ${value} current game score >> ${GameOptions.currentGameScore}`)
 
         const isPauseDown = Phaser.Input.Keyboard.JustDown(this.pauseButton) 
         
-        if (isPauseDown && !this.scene.isPaused()){
-            // console.log('PAUSE')
+        if (isPauseDown && !this.scene.isPaused() && !this.scene.isActive('game-over')){
             this.scene.pause('game')
             this.scene.launch('pause', {score : this.score})
         } 
@@ -782,9 +781,9 @@ export default class Game extends Phaser.Scene{
 
 
     handlePlayerDeath(){
-        console.log(`============================================`)
-        console.log(`Game Over - End Score : ${this.score}`)
-        console.log(`Platform Speed : ${GameOptions.platformSpeedLevel[1]}`)
+        // console.log(`============================================`)
+        // console.log(`Game Over - End Score : ${this.score}`)
+        // console.log(`Platform Speed : ${GameOptions.platformSpeedLevel[1]}`)
 
         if (this.scene.isActive('pause')){
             this.scene.stop('pause')
@@ -883,7 +882,7 @@ export default class Game extends Phaser.Scene{
             }
         }
 
-        if (this.score > GameOptions.levelDifficulty[1]) {
+        if (this.score > GameOptions.levelDifficulty[1] && GameOptions.isGameStart) {
             // console.log(`passed 100 points. Release the Spikes!`)
 
             // is there a spike over the platform?

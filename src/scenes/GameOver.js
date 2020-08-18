@@ -13,8 +13,7 @@ export default class GameOver extends Phaser.Scene{
     }
 
     preload(){
-        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
-
+        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
     }
 
     create(){
@@ -36,10 +35,10 @@ export default class GameOver extends Phaser.Scene{
         console.log('Transitioned Into Game Over Scene')
         
         // console.log('Game Over')
-        this.add.bitmapText(width * 0.5, height * 0.25, 'babyblocks', 'Game Over', 42).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 42, 'babyblocks', `Final Score : ${this.currentScore}`, 22).setOrigin(0.5)
-        this.add.bitmapText(10, 10, 'babyblocks', "'Q' for Main Menu", 16).setOrigin(0, 0)
-        this.add.bitmapText(10, 10 + 18, 'babyblocks', "'SPACE' to retry", 16).setOrigin(0, 0)
+        this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Game Over', 64).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore}ft`, 22).setOrigin(0.5)
+        this.add.bitmapText(10, 10, 'classified', "'Q' for Main Menu", 16).setOrigin(0, 0)
+        this.add.bitmapText(10, 10 + 18, 'classified', "'SPACE' to retry", 16).setOrigin(0, 0)
         
         this.input.keyboard.once('keydown_Q', () => {
             this.scene.stop('game')

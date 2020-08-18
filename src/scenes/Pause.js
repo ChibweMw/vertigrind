@@ -15,7 +15,7 @@ export default class Pause extends Phaser.Scene{
     }
 
     preload(){
-        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
     }
 
     create(){
@@ -33,11 +33,11 @@ export default class Pause extends Phaser.Scene{
         overlay.fillRect(0, 0, width, height)
 
         console.log('Pause Scene')
-        this.add.bitmapText(width * 0.5, height * 0.25, 'babyblocks', 'Paused', 42).setOrigin(0.5)
-        this.add.bitmapText(width * 0.5, height * 0.25 + 42, 'babyblocks', `Score : ${this.currentScore}`, 22).setOrigin(0.5)
-        this.add.bitmapText(10, 10, 'babyblocks', "'Q' for Main Menu", 16).setOrigin(0, 0)
-        this.add.bitmapText(10, 10 + 18, 'babyblocks', "'P' to resume", 16).setOrigin(0, 0)
-        this.add.bitmapText(10, 10 + 18 * 2, 'babyblocks', "'R' to restart", 16).setOrigin(0, 0)
+        this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Paused', 64).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Score : ${this.currentScore}ft`, 22).setOrigin(0.5)
+        this.add.bitmapText(10, 10, 'classified', "'Q' for Main Menu", 16).setOrigin(0, 0)
+        this.add.bitmapText(10, 10 + 18, 'classified', "'P' to resume", 16).setOrigin(0, 0)
+        this.add.bitmapText(10, 10 + 18 * 2, 'classified', "'R' to restart", 16).setOrigin(0, 0)
 
         this.input.keyboard.once('keydown_Q', () => {
             this.scene.stop('game')

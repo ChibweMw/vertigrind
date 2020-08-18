@@ -22,7 +22,7 @@ export default class Menu extends Phaser.Scene{
 
     preload(){
         this.cursors = this.input.keyboard.createCursorKeys()
-        this.load.bitmapFont('babyblocks', 'assets/fonts/babyblocks.png', 'assets/fonts/babyblocks.xml')
+        this.load.bitmapFont('classified', 'assets/fonts/classified.png', 'assets/fonts/classified.xml')
         this.load.image('logo', 'assets/sprites/Branding/Logo.png')
     }
 
@@ -35,17 +35,17 @@ export default class Menu extends Phaser.Scene{
         const style = { color: '#fff', fontSize: 24}
         // this.add.text(width * 0.5, height * 0.1, 'Main Menu', style).setOrigin(0.5)
         
-        // this.add.bitmapText(width * 0.5, height * 0.1, 'babyblocks', 'VertiGrind', 64).setOrigin(0.5)
+        // this.add.bitmapText(width * 0.5, height * 0.1, 'classified', 'VertiGrind', 64).setOrigin(0.5)
 
         const gameLogo = this.add.image(width / 2, height * 0.05, 'logo',).setScale(2).setOrigin(0.5, 0)
         
 
-        // this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks', `${this.menuItems[this.menuItemPos]}`, 24).setOrigin(0.5)
-        this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'babyblocks')
+        // this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'classified', `${this.menuItems[this.menuItemPos]}`, 24).setOrigin(0.5)
+        this.menuText = this.add.bitmapText(width * 0.5, height * 0.5, 'classified')
         // config menu text
-        this.menuText.setMaxWidth(100)
+        this.menuText.setMaxWidth(200)
         this.menuText.setOrigin(0.5)
-        this.menuText.setFontSize(24)
+        this.menuText.setFontSize(32)
         this.menuText.setText(this.menuItems)
 
         console.log(`CURRENT Selected SCENE : ${this.menuItems[this.menuItemPos]}`)

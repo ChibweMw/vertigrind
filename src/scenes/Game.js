@@ -123,6 +123,7 @@ export default class Game extends Phaser.Scene{
     }
 
     create(){
+
         // super.create()
 
         // Add BG Layers

@@ -31,7 +31,7 @@ export default class GameOver extends Phaser.Scene{
                 alpha: 0.6
             }
         })
-        overlay.fillRect(0, 0, width, height)
+        overlay.fillRect(0, 0, width, height * 0.4)
 
         console.log('Transitioned Into Game Over Scene')
         

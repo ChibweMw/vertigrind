@@ -386,27 +386,28 @@ export default class Game extends Phaser.Scene{
         // spike collide with player
         this.playerObstacleCollider = this.physics.add.overlap(this.player, this.spikes, this.slowDown, undefined, this) //slowDown
 
-        this.shadowFX = this.add.particles('yogi-jump')
+        this.playerShadowEffect()
+        // this.shadowFX = this.add.particles('yogi-jump')
 
-        this.shadowEmitter = this.shadowFX.createEmitter({
-            // x: this.player.x ,
-            // y: 1,
-            // scale: {start: 3, end: 0},
-            scale: 3,
-            alpha: {start: 1, end: 0},
-            tint: 0xffffff,
-            // tint: 0x61b7ac,
-            frame: this.player.anims.currentFrame.index,
-            quantity: 1,
-            frequency: 70,
-            speedY: -100,
-            lifespan: 250,
-            particleClass: PlayerShadow,
-            blendMode: 'ADD',
-            rotate: {min: -500, max: -500},
-        })
+        // this.shadowEmitter = this.shadowFX.createEmitter({
+        //     // x: this.player.x ,
+        //     // y: 1,
+        //     // scale: {start: 3, end: 0},
+        //     scale: 3,
+        //     alpha: {start: 1, end: 0},
+        //     tint: 0xffffff,
+        //     // tint: 0x61b7ac,
+        //     frame: this.player.anims.currentFrame.index,
+        //     quantity: 1,
+        //     frequency: 70,
+        //     speedY: -100,
+        //     lifespan: 250,
+        //     particleClass: PlayerShadow,
+        //     blendMode: 'ADD',
+        //     rotate: this.player.playerGravity ?  {min: -500, max: -500} : {min: 500, max: 500},
+        // })
 
-        this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
+        // this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
         // // this.shadowEmitter.startFollow(this.player, this.player.width, this.player.height )
 
 
@@ -813,19 +814,38 @@ export default class Game extends Phaser.Scene{
         this.boulderParticle = this.add.particles('bg-boulders')
         this.boulderParticle.setDepth(1)
         
-        // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
         this.emit_boulders = this.boulderParticle.createEmitter({
             x: this.player.body.x < 0 ? 0 : this.scale.width,
             y:  this.player.body.y,
-            lifespan: 600,
+            lifespan: 800,
             angle: { start: -32, end: 360, steps: 32 },
-            speed: 700,
+            speed: 800,
             quantity: 12,
             scale: { start: 3, end: 0 },
-            tint: 0xea6e48,
+            tint: { start: 0xe9948, end: 0xea6e48 } ,
         })
 
         this.emit_boulders.explode(20)
+    }
+
+    playerShadowEffect(){
+        this.shadowFX = this.add.particles('yogi-jump')
+
+        this.shadowEmitter = this.shadowFX.createEmitter({
+            scale: 3,
+            alpha: {start: 1, end: 0},
+            tint: 0xffffff,
+            frame: this.player.anims.currentFrame.index,
+            quantity: 1,
+            frequency: 70,
+            speedY: -100,
+            lifespan: 250,
+            particleClass: PlayerShadow,
+            blendMode: 'ADD',
+            rotate: this.player.playerGravity ?  {min: -500, max: -500} : {min: 500, max: 500},
+        })
+
+        this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
     }
 
     // platform spawner. level difficulty

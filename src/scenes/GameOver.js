@@ -15,6 +15,9 @@ export default class GameOver extends Phaser.Scene{
     }
 
     create(){
+        this.sound.play('player-die')
+        this.cameras.main.shake(90, 0.01)
+
         // super.create()
         // use ScaleManager to get with and height of game
         const width = this.scale.width
@@ -33,7 +36,7 @@ export default class GameOver extends Phaser.Scene{
         console.log('Transitioned Into Game Over Scene')
         
         // console.log('Game Over')
-        this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Game Over', 64).setOrigin(0.5)
+        this.add.bitmapText(width * 0.5, height * 0.25, 'classified', 'Try Again!', 64).setOrigin(0.5)
         this.add.bitmapText(width * 0.5, height * 0.25 + 64, 'classified', `Final Score : ${this.currentScore} ft`, 16).setOrigin(0.5)
         this.add.bitmapText(10, 10, 'classified', "'Q' for Main Menu", 16).setOrigin(0, 0)
         this.add.bitmapText(10, 10 + 18, 'classified', "'SPACE' to retry", 16).setOrigin(0, 0)

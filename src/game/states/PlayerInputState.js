@@ -46,6 +46,7 @@ export default class PlayerInputState {
                 if (isJustDownJump && candoubleJump){
                     player.jumpCount++
                     body.setVelocityX(player.playerJumpForce)
+                    // this.sound.play('player-jump')
                 }
             } else {
                 player.play('yogiJump', true)

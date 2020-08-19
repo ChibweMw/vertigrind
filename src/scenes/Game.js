@@ -57,6 +57,10 @@ export default class Game extends Phaser.Scene{
     shadowFX
 
     flippingGrav = false
+    playJumpSound = false
+    playLandSound = false
+    playGravFlipSound = false
+    
 
     // cursors
 
@@ -68,11 +72,15 @@ export default class Game extends Phaser.Scene{
         this.score = 0
         this.jumpCount = 0
         this.sound.stopAll()
+
         GameOptions.isGameStart = false
+        GameOptions.isGameEnd = false
+
         GameOptions.currentGameScore = 0
         GameOptions.platformSpeedLevel[1] = GameOptions.platformStartSpeed
         this.cursors = this.input.keyboard.createCursorKeys()
     }
+
 
     preload(){
         // Input
@@ -581,6 +589,13 @@ export default class Game extends Phaser.Scene{
         const touchingLeft = this.player.body.touching.left
         const touchingRight = this.player.body.touching.right
         if (touchingLeft || touchingRight){
+            this.playJumpSound = true
+            this.playGravFlipSound = true
+
+            if (this.playLandSound){
+                this.sound.play('player-land')
+                this.playLandSound = false
+            }
             if (!GameOptions.isGameStart){
                 GameOptions.isGameStart = true
             }
@@ -590,21 +605,28 @@ export default class Game extends Phaser.Scene{
                 this.player.flippingGrav = true
             }
         } else {
-            if (this.player.jumpCount >= 1 && this.player.flippingGrav){
+            if (this.playJumpSound){
+                this.sound.play('player-jump')
+                this.playJumpSound = false
+            }
+            this.playLandSound = true
+            if (this.player.jumpCount == 1 && this.player.flippingGrav){
                 this.shadowEmitter.start()
                 this.player.flippingGrav = false
                 // this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )
                 
             }
+            if (this.player.jumpCount > 1 && !this.player.flippingGrav){
+                // this.playGravFlipSound = false
+                if (this.playGravFlipSound){
+                    this.sound.play('player-flip')
+                    this.playGravFlipSound = false
+                }
+            }
         }
 
-        if (GameOptions.isGameStart) {
+        if (!GameOptions.isGameEnd) {
             this.wordlBoundKill(this.player)
-        }
-
-
-        if (this.player.x > this.scale.width || this.player.x < -this.player.displayWidth){
-            this.handlePlayerDeath()
         }
     }
 
@@ -688,7 +710,7 @@ export default class Game extends Phaser.Scene{
         this.scoreText.text = value
 
         // play jewel collect sfx
-        this.sound.play('collect-jewel')
+        // this.sound.play('collect-jewel')
     }
 
     handleDamage(player, spike){
@@ -719,9 +741,11 @@ export default class Game extends Phaser.Scene{
         
         // flash player sprite
         if (!this.playerHitFX.isPlaying()){
-            console.log(`============================================`)
-            console.log(`SPIKE : ${Object.keys(spike)}`)
+            // console.log(`============================================`)
+            // console.log(`SPIKE : ${Object.keys(spike)}`)
+            this.sound.play('player-hit')
             this.playerHitFX.play()
+
             
             this.tweens.add({
                 targets: spike,
@@ -757,7 +781,7 @@ export default class Game extends Phaser.Scene{
         // console.log(`============================================`)
         // console.log(`Game Over - End Score : ${this.score}`)
         // console.log(`Platform Speed : ${GameOptions.platformSpeedLevel[1]}`)
-
+        this.playerDeathParticle()
         if (this.scene.isActive('pause')){
             this.scene.stop('pause')
         }
@@ -779,15 +803,29 @@ export default class Game extends Phaser.Scene{
 
         const halfHeight = sprite.displayHeight * 0.5
         const gameHeight = this.scale.height
-        if (sprite.x < -halfWidth){
+        if (sprite.x < -halfWidth || sprite.x > gameWidth + halfWidth || sprite.y < -halfHeight || sprite.y > gameHeight + halfHeight){
+            GameOptions.isGameEnd = !GameOptions.isGameEnd
             this.handlePlayerDeath()
-        } else if (sprite.x > gameWidth + halfWidth){
-            this.handlePlayerDeath()
-        } else if (sprite.y < -halfHeight){
-            this.handlePlayerDeath()
-        } else if (sprite.y > gameHeight + halfHeight){
-            this.handlePlayerDeath()
-        }
+        } 
+    }
+
+    playerDeathParticle(){
+        this.boulderParticle = this.add.particles('bg-boulders')
+        this.boulderParticle.setDepth(1)
+        
+        // const rect1 = new Phaser.Geom.Rectangle(0, this.scale.height, this.scale.width, 100)
+        this.emit_boulders = this.boulderParticle.createEmitter({
+            x: this.player.body.x < 0 ? 0 : this.scale.width,
+            y:  this.player.body.y,
+            lifespan: 600,
+            angle: { start: -32, end: 360, steps: 32 },
+            speed: 700,
+            quantity: 12,
+            scale: { start: 3, end: 0 },
+            tint: 0xea6e48,
+        })
+
+        this.emit_boulders.explode(20)
     }
 
     // platform spawner. level difficulty

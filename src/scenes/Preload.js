@@ -44,8 +44,12 @@ export default class PreLoad extends Phaser.Scene {
         this.load.image('particle-Grind-2', 'assets/sprites/Player/particle_grind-2.png')
         this.load.image('particle-Grind-3', 'assets/sprites/Player/particle_grind-3.png')
 
-        this.load.audio('jump', 'assets/sfx/jump-4.wav')
-        this.load.audio('collect-jewel', 'assets/sfx/collect-1.wav')
+        // this.load.audio('jump', 'assets/sfx/jump-4.wav')
+        this.load.audio('player-land', 'assets/sfx/jump.wav')
+        this.load.audio('player-jump', 'assets/sfx/land.wav')
+        this.load.audio('player-flip', 'assets/sfx/flipGrav.wav')
+        this.load.audio('player-hit', 'assets/sfx/hit-2.wav')
+        this.load.audio('player-die', 'assets/sfx/explode-6.wav')
 
         this.load.audio('main-theme', 'assets/music/Pixel-War-1.wav')
 

@@ -842,7 +842,7 @@ export default class Game extends Phaser.Scene{
             lifespan: 250,
             particleClass: PlayerShadow,
             blendMode: 'ADD',
-            rotate: this.player.playerGravity ?  {min: -500, max: -500} : {min: 500, max: 500},
+            rotate: this.player.playerGravity ? {min: -500, max: -500} : {min: 500, max: 500},
         })
 
         this.shadowEmitter.startFollow(this.player.body, this.player.body.width, this.player.body.height )

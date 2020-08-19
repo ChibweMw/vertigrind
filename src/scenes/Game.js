@@ -516,26 +516,26 @@ export default class Game extends Phaser.Scene{
                 // PLATFORM SPEED INCREASE And Limit
                 if (GameOptions.platformSpeedLevel[1] > GameOptions.platformMaxSpeed){
                     GameOptions.platformSpeedLevel[1] = GameOptions.platformMaxSpeed
-                    // console.log(`hit Plat Max Speed ${GameOptions.platformMaxSpeed}`)
+                    console.log(`hit Plat Max Speed ${GameOptions.platformMaxSpeed}`)
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[2]){
 
-                    // console.log(`Speed Level : 1 > ${GameOptions.platformSpeedLevel[1]}`)
-                    GameOptions.platformSpeedLevel[1] += (0.000005 * dt)
+                    console.log(`Speed Level : 1 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.0005 * dt)
                     
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[1]){
                     
-                    // console.log(`Speed Level : 2 > ${GameOptions.platformSpeedLevel[1]}`)
-                    GameOptions.platformSpeedLevel[1] += (0.00009 * dt)
+                    console.log(`Speed Level : 2 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.0009 * dt)
                     
                 } else if (GameOptions.platformSpeedLevel[1] >= GameOptions.platformMaxSpeed * GameOptions.curveLevel[0]){
                     
-                    // console.log(`Speed Level : 3 > ${GameOptions.platformSpeedLevel[1]}`)
-                    GameOptions.platformSpeedLevel[1] += (0.0006 * dt)
+                    console.log(`Speed Level : 3 > ${GameOptions.platformSpeedLevel[1]}`)
+                    GameOptions.platformSpeedLevel[1] += (0.002 * dt)
                     
                 } else {
                     
                     GameOptions.platformSpeedLevel[1] += (0.005 * dt)
-                    // console.log(`Speed Level : 4 > ${GameOptions.platformSpeedLevel[1]}`)
+                    console.log(`Speed Level : 4 > ${GameOptions.platformSpeedLevel[1]}`)
 
                 } 
 
